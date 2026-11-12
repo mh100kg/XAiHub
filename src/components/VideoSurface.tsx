@@ -1,5 +1,7 @@
 import { useEffect, useImperativeHandle, useRef, forwardRef, useState } from "react";
 import Hls from "hls.js";
+import { invoke } from "@tauri-apps/api/core";
+import { captureSubtitleFrame } from "../subtitleFrame";
 import { isLocalMedia, platform, playlist } from "../api";
 import { mediaErrorMessage } from "../mediaErrors";
 import { mediaHost, mediaResource, observeHls, usePlayerDiagnostics } from "../playbackDiagnostics";
@@ -53,6 +55,63 @@ const VideoSurface = forwardRef<VideoHandle, Props>(function VideoSurface(
   const recoverTimerRef = useRef<number | null>(null);
   const nearEndFiredRef = useRef(false);
   const [ready, setReady] = useState(false);
+  const [vietnamese, setVietnamese] = useState(() => localStorage.getItem("hg-vietnamese-subtitles") === "on");
+  const [subtitle, setSubtitle] = useState("");
+  const [subtitleError, setSubtitleError] = useState("");
+  const translations = useRef(new Map<string, string>());
+
+  useEffect(() => {
+    setSubtitle("");
+    setSubtitleError("");
+    if (platform !== "ios" || !active || !vietnamese) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const canvas = document.createElement("canvas");
+    let disposed = false;
+    let busy = false;
+    let blocked = false;
+    let revision = 0;
+    let previous = "";
+    const reset = () => {
+      revision++;
+      previous = "";
+      setSubtitle("");
+    };
+    const sample = async () => {
+      if (busy || blocked || video.paused) return;
+      busy = true;
+      const token = revision;
+      const current = () => !disposed && token === revision;
+      try {
+        const frame = captureSubtitleFrame(video, canvas);
+        if (!frame) return;
+        const text = (await invoke<string>("read_subtitle", { jpeg: frame.jpeg.split(",")[1] })).trim();
+        if (!current() || text === previous) return;
+        previous = text;
+        setSubtitle("");
+        if (!text) return;
+        let translated = translations.current.get(text);
+        if (!translated) {
+          translated = await invoke<string>("translate_subtitle", { text });
+          if (translations.current.size >= 200) translations.current.clear();
+          translations.current.set(text, translated);
+        }
+        if (current()) setSubtitle(translated);
+      } catch (error) {
+        if (current()) {
+          blocked = true;
+          setSubtitleError(error instanceof Error ? error.message : String(error));
+        }
+      } finally { busy = false; }
+    };
+    video.addEventListener("seeking", reset);
+    const timer = window.setInterval(() => { void sample(); }, 500);
+    return () => {
+      disposed = true;
+      window.clearInterval(timer);
+      video.removeEventListener("seeking", reset);
+    };
+  }, [src, active, vietnamese]);
   const { trace, requestSeek } = usePlayerDiagnostics(videoRef, hlsRef, { ...diagnosticContext, active, resource: mediaResource(src) });
   const activity = usePlaybackActivity(videoRef, hlsRef, { active, autoPlay, src, trace });
 
@@ -214,49 +273,106 @@ const VideoSurface = forwardRef<VideoHandle, Props>(function VideoSurface(
   };
 
   return (
-    <video
-      ref={videoRef}
-      poster={poster}
-      playsInline
-      preload="auto"
-      muted={muted}
-      loop={loop}
-      onClick={onClick}
-      className={`w-full h-full bg-black ${fit === "cover" ? "object-cover" : "object-contain"} ${className}`}
-      style={{ opacity: ready ? 1 : 0, transition: "opacity .35s" }}
-      onLoadedData={(e) => {
-        const v = e.target as HTMLVideoElement;
-        setReady(true);
-        reapply(v);
-        reportSize(v);
-      }}
-      onTimeUpdate={(e) => {
-        const v = e.target as HTMLVideoElement;
-        reportSize(v);
-        onTime?.(v.currentTime);
-        // iOS 有时不触发 ended：靠近片尾自己补一次，保证自动连播
-        const d = v.duration;
-        if (d && Number.isFinite(d) && v.currentTime > d - 0.3 && !nearEndFiredRef.current) {
-          nearEndFiredRef.current = true;
-          onEnded?.();
-        }
-      }}
-      onLoadedMetadata={(e) => {
-        const v = e.target as HTMLVideoElement;
-        reapply(v);
-        onDuration?.(v.duration || 0);
-        reportSize(v);
-      }}
-      onPlay={() => { if (activity.isActive()) onPlaying?.(); }}
-      onPause={() => onPause?.()}
-      onWaiting={() => onWaiting?.()}
-      onPlaying={(e) => {
-        reportSize(e.target as HTMLVideoElement);
-        if (activity.isActive()) onPlaying?.();
-      }}
-      onEnded={() => { if (activity.isActive()) onEnded?.(); }}
-      onError={handleVideoError}
-    />
+    <div className={`relative w-full h-full bg-black overflow-hidden ${className}`}>
+      {!ready && poster && (
+        <img
+          src={poster}
+          alt=""
+          className={`absolute inset-0 w-full h-full pointer-events-none ${fit === "cover" ? "object-cover" : "object-contain"}`}
+        />
+      )}
+      <video
+        ref={videoRef}
+        playsInline
+        webkit-playsinline="true"
+        preload="auto"
+        muted={muted}
+        loop={loop}
+        onClick={onClick}
+        className={`w-full h-full bg-black ${fit === "cover" ? "object-cover" : "object-contain"}`}
+        style={{
+          opacity: ready ? 1 : 0,
+          transform: hasTransform ? `translate3d(${panX}px, ${panY}px, 0) scale(${scale})` : "translateZ(0)",
+          transformOrigin: "center center",
+          transition: isGesturing ? "opacity .25s" : "opacity .25s, transform .2s cubic-bezier(.2,0,0,1)",
+        }}
+        onLoadedData={(e) => {
+          const v = e.target as HTMLVideoElement;
+          setReady(true);
+          reapply(v);
+          reportSizeAndDuration(v);
+        }}
+        onCanPlay={(e) => {
+          const v = e.target as HTMLVideoElement;
+          setReady(true);
+          reportSizeAndDuration(v);
+        }}
+        onTimeUpdate={(e) => {
+          const v = e.target as HTMLVideoElement;
+          onTime?.(v.currentTime);
+          if (lastSizeRef.current.w === 0 && v.videoWidth > 0) {
+            reportSizeAndDuration(v);
+          }
+          // 借鉴 stclock1988/hghub-ios：部分 HLS 流容器标称时长比最后一个分片略长 0.5~1.2s，
+          // 接近片尾时提前复位准备，若卡在片尾则自动触发连播
+          if (!loop && !nearEndFiredRef.current && activity.isActive() && v.duration > 5 && v.currentTime >= v.duration - 0.35) {
+            nearEndFiredRef.current = true;
+            onEnded?.();
+          }
+        }}
+        onLoadedMetadata={(e) => {
+          const v = e.target as HTMLVideoElement;
+          reapply(v);
+          reportSizeAndDuration(v);
+        }}
+        onPlay={() => { if (activity.isActive()) onPlaying?.(); }}
+        onPause={() => onPause?.()}
+        onWaiting={(e) => {
+          const v = e.target as HTMLVideoElement;
+          if (!loop && !nearEndFiredRef.current && activity.isActive() && v.duration > 5 && v.currentTime >= v.duration - 1.5) {
+            nearEndFiredRef.current = true;
+            onEnded?.();
+            return;
+          }
+          onWaiting?.();
+        }}
+        onPlaying={(e) => {
+          setReady(true);
+          recoverCountRef.current = 0;
+          reportSizeAndDuration(e.target as HTMLVideoElement);
+          if (activity.isActive()) onPlaying?.();
+        }}
+        onSeeking={() => onWaiting?.()}
+        onSeeked={() => {
+          const v = videoRef.current;
+          if (v && !v.paused && activity.isActive()) onPlaying?.();
+        }}
+        onEnded={() => {
+          if (!nearEndFiredRef.current && activity.isActive()) {
+            nearEndFiredRef.current = true;
+            onEnded?.();
+          }
+        }}
+      />
+      {platform === "ios" && active && (
+        <>
+          <button type="button" aria-pressed={vietnamese}
+            className="absolute z-20 left-3 top-[max(3rem,env(safe-area-inset-top))] rounded bg-black/75 px-2 py-1 text-xs text-white"
+            onPointerDown={(event) => event.stopPropagation()}
+            onPointerUp={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              localStorage.setItem("hg-vietnamese-subtitles", vietnamese ? "off" : "on");
+              setVietnamese(!vietnamese);
+            }}>Phụ đề Việt</button>
+          {vietnamese && (subtitle || subtitleError) && (
+            <div className="pointer-events-none absolute inset-x-8 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-20 text-center text-sm text-white">
+              <span className="bg-black/85 px-2 py-1">{subtitleError || subtitle}</span>
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 });
 
