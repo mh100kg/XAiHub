@@ -14,7 +14,7 @@ export function WaterfallCard({ v, onOpen }: { v: VideoCard; onOpen: () => void 
       <Img src={v.cover} />
       <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
       <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[9px] font-bold brand-grad elev-1">
-        {v.is_finished ? "已完结" : `更新至${v.episode_count}集`}
+        {v.is_finished ? "Completed" : `Updated to episode ${v.episode_count}`}
       </span>
       <span className="absolute top-1.5 right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-black/45 backdrop-blur-sm text-[9px] font-semibold text-white/90">
         <IPlayF size={9} />{fmt(v.hot)}
@@ -22,7 +22,7 @@ export function WaterfallCard({ v, onOpen }: { v: VideoCard; onOpen: () => void 
       <div className="absolute inset-x-0 bottom-0 p-2">
         <div className="text-[11.5px] font-medium text-white leading-snug clamp-2 tsh">{v.title}</div>
         <div className="flex items-center justify-between mt-1">
-          <span className="text-[9.5px] text-white/65 truncate max-w-[60%]">{v.author?.name || "HGhubX"}</span>
+          <span className="text-[9.5px] text-white/65 truncate max-w-[60%]">{v.author?.name || "YellowFruit Short Dramas"}</span>
           <span className="flex items-center gap-0.5 text-[9.5px] text-white/75"><IHeartF size={10} className="text-white/70" />{fmt(v.like_count)}</span>
         </div>
       </div>
@@ -57,7 +57,7 @@ export function RowCard({ v, onOpen }: { v: VideoCard; onOpen: () => void }) {
         <Img src={v.cover} />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
         <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[8.5px] font-bold brand-grad">
-          {v.is_finished ? "完结" : `${v.episode_count}集`}
+          {v.is_finished ? "Completed" : `${v.episode_count} episodes`}
         </span>
         {!!v.score && (
           <span className="absolute bottom-1.5 left-1.5 text-[9px] font-bold text-amber tsh">{v.score.toFixed(1)} 分</span>

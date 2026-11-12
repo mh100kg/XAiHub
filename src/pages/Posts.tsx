@@ -55,9 +55,8 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 flex items-center gap-2 px-2 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={19} /></button>
-        <span className="text-[14px] font-bold text-on">吃瓜</span>
-        <span className="text-[10.5px] text-mut ml-1">圈内爆料 · 每日更新</span>
-        <button onClick={() => setSearching(true)} aria-label="搜索吃瓜" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+        <span className="text-[14px] font-bold text-on">YellowFruit Buzz</span>
+        <span className="text-[10.5px] text-mut ml-1">Entertainment news</span>
       </div>
       <div className="flex-1 scroll-y px-3 pt-3 pb-8">
         {items.length ? (
@@ -80,7 +79,7 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
         ) : loading ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : (
-          <Empty icon={<IFireF size={26} />} title="暂无吃瓜内容" sub="稍后再来看看" />
+          <Empty icon={<IFireF size={26} />} title="No posts yet" sub="Check back later" />
         )}
         <div ref={sentinel} className="h-10" />
         {loading && <div className="flex justify-center py-2"><div className="w-6 h-6 spinner" /></div>}
@@ -110,7 +109,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
   const safeHtml = useMemo(() => sanitizeHtml(content), [content, strictSecurity]);
   const openSafeLink = (url: string) => {
     api.openUrl(url).catch(() => {
-      copyText(url).then(() => toast("链接已复制", "ok")).catch(() => toast("复制失败", "info"));
+      navigator.clipboard?.writeText(url).then(() => toast("Link copied", "ok")).catch(() => {});
     });
   };
 
@@ -120,22 +119,8 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
     setSegs([]);
     setSeg(0);
     api.post(id)
-      .then((p) => {
-        if (!alive) return;
-        setPost(p);
-        /* 老字段有值就直接用，省一次请求 */
-        if (p.video_url) { setSegs([p.video_url]); setPlay(true); }
-      })
-      .catch((e) => { if (alive) setErr((e as Error).message || "加载失败"); });
-    setResolving(true);
-    api.postPlayback(id)
-      .then((r) => {
-        if (!alive) return;
-        const list = (r?.videos || []).map((v) => v?.url || "").filter(Boolean);
-        if (list.length) { setSegs(list); setPlay(true); }
-      })
-      .catch(() => { /* 无视频：保持图文 */ })
-      .finally(() => { if (alive) setResolving(false); });
+      .then((p) => { if (alive) setPost(p); })
+      .catch((e) => { if (alive) setErr((e as Error).message || "Loading failed"); });
     return () => { alive = false; };
   }, [id]);
 
@@ -143,12 +128,12 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 flex items-center gap-2 px-2 bg-s1" style={{ paddingTop: isMobile ? "var(--sat, 0px)" : 0, height: isMobile ? "calc(44px + var(--sat, 0px))" : 44 }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={19} /></button>
-        <span className="text-[13.5px] font-semibold text-on">吃瓜详情</span>
+        <span className="text-[13.5px] font-semibold text-on">Post details</span>
       </div>
 
       <div className="flex-1 scroll-y pb-8">
         {err ? (
-          <Empty icon={<IFireF size={26} />} title="加载失败" sub={err} />
+          <Empty icon={<IFireF size={26} />} title="Loading failed" sub={err} />
         ) : !post ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : (
@@ -162,7 +147,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
                     if (seg < segs.length - 1) setSeg(seg + 1); else setPlay(false);
                   }} />
               ) : (
-                <button onClick={() => { if (src) setPlay(true); else if (!resolving) toast("该帖子没有视频", "info"); }} className="absolute inset-0">
+                <button onClick={() => { if (post.video_url) setPlay(true); else toast("This post has no video", "info"); }} className="absolute inset-0">
                   <Img src={post.cover} eager />
                   {src && (
                     <span className="absolute inset-0 flex items-center justify-center">

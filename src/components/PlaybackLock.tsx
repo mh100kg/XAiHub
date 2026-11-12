@@ -20,7 +20,7 @@ export default function PlaybackLock({ active, onUnlock }: { active: boolean; on
 
   return <div data-playback-lock-shield className="absolute inset-0 z-50" style={{ touchAction: "none" }}
     onPointerDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()} onWheel={e => e.stopPropagation()}>
-    <button type="button" data-playback-unlock aria-label="解锁播放控制" title="解锁播放控制" aria-pressed
+    <button type="button" data-playback-unlock aria-label="Unlock playback controls" title="Unlock playback controls" aria-pressed
       onClick={onUnlock} className="playback-unlock absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center">
       <ILockF size={19} />
     </button>

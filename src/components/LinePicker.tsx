@@ -24,10 +24,10 @@ function Row({ item, current, probe, busy, disabled, onPick, onProbe }: {
       <span
         title={probe ? (probe.error || (probe.status ? `HTTP ${probe.status}` : "")) : ""}
         className={`text-[10.5px] tabular-nums shrink-0 ${probe ? (probe.ok ? "text-mint" : "text-danger") : "text-dim"}`}>
-        {busy ? "…" : probe ? (probe.ok ? `${probe.ms}ms` : probe.status ? `HTTP ${probe.status}` : "失败") : "—"}
+        {busy ? "…" : probe ? (probe.ok ? `${probe.ms}ms` : probe.status ? `HTTP ${probe.status}` : "Failed") : "—"}
       </span>
       <button onClick={() => onProbe(item.url)} disabled={busy || disabled}
-        className="shrink-0 h-7 px-2.5 rounded-(--r-sm) bg-s4 text-[11px] text-on/80 pressable disabled:opacity-50">检测</button>
+        className="shrink-0 h-7 px-2.5 rounded-(--r-sm) bg-s4 text-[11px] text-on/80 pressable disabled:opacity-50">Test</button>
     </div>
   );
 }
@@ -55,7 +55,7 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
   const [switching, setSwitching] = useState("");
 
   const readState = () => {
-    api.lineState().then(setState).catch((e) => toast((e as Error).message || "读取线路失败", "info"));
+    api.lineState().then(setState).catch((e) => toast((e as Error).message || "Could not load servers", "info"));
   };
 
   const readMirrors = async () => {
@@ -67,7 +67,7 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
       setRecommended(res?.recommended || []);
     } catch (e) {
       setMirrors([]);
-      setMirrorErr((e as Error).message || "镜像线路获取失败");
+      setMirrorErr((e as Error).message || "Could not load mirror servers");
     } finally {
       setLoadingMirrors(false);
     }
@@ -92,7 +92,7 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
         return next;
       });
     } catch (e) {
-      toast((e as Error).message || "检测失败", "info");
+      toast((e as Error).message || "Test failed", "info");
     } finally {
       setProbing("");
     }
@@ -106,12 +106,9 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
       tracePlayback("line.manual", { line: hostOf(next), prev: hostOf(state?.base ?? ""), ok: true });
       if (next !== state?.base) setUser(null);
       setState((s) => (s ? { ...s, base: next } : s));
-      toast(`线路已切换到 ${hostOf(next)}，跨站点需重新登录`, "ok");
-      // 走的是新域名了，列表页得重新拉一遍，否则还是旧线路的内容
-      window.dispatchEvent(new Event("hg:line-changed"));
+      toast(`Switched to ${hostOf(next)}，Sign in again after switching sites`, "ok");
     } catch (e) {
-      tracePlayback("line.manual", { line: hostOf(url), ok: false, err: (e as Error).message });
-      toast((e as Error).message || "切换失败", "info");
+      toast((e as Error).message || "Could not switch servers", "info");
     } finally {
       setSwitching("");
     }
@@ -125,52 +122,36 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
       <div className="shrink-0 flex items-center gap-2 px-4 pt-3 pb-2">
         <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ISettings size={16} /></span>
         <div className="flex-1 min-w-0">
-          <div className="text-[14px] font-bold text-on leading-tight">线路</div>
-          <div className="text-[10.5px] text-mut mt-0.5 truncate">当前：{state ? hostOf(state.base) : "读取中…"}</div>
+          <div className="text-[14px] font-bold text-on leading-tight">Servers</div>
+          <div className="text-[10.5px] text-mut mt-0.5 truncate">Current：{state ? hostOf(state.base) : "Loading...…"}</div>
         </div>
-        <button onClick={onClose} aria-label="关闭" className="w-8 h-8 rounded-full bg-s3/80 flex items-center justify-center text-mut pressable"><IClose size={16} /></button>
+        <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-full bg-s3/80 flex items-center justify-center text-mut pressable"><IClose size={16} /></button>
       </div>
 
       <div className="flex-1 scroll-y px-3 pb-4">
-        <GroupHead
-          title="固定线路"
-          hint="需代理 / 非大陆网络"
-          actions={
-            <button onClick={() => probe(fixed, "fixed")} disabled={busyAll || !fixed.length}
-              className="text-[10.5px] text-primary pressable disabled:opacity-50">
-              {probing === "fixed" ? "检测中…" : "全部检测"}
-            </button>
-          }
-        />
+        <div className="flex items-center gap-2 px-1 mt-1 mb-1.5">
+          <span className="text-[10.5px] font-semibold text-dim tracking-wide">Fixed servers</span>
+          <span className="text-[10px] text-dim">Proxy required / Network outside mainland China</span>
+          <button onClick={() => probe(fixed, "fixed")} disabled={busyAll || !fixed.length}
+            className="ml-auto text-[10.5px] text-primary pressable disabled:opacity-50">
+            {probing === "fixed" ? "Testing…" : "Test all"}
+          </button>
+        </div>
         <div className="rounded-(--r-md) bg-s2 divide-y divide-s3 overflow-hidden">
           {fixed.map((it) => (
             <Row key={it.url} item={it} current={state?.base === it.url} probe={probes[it.url]}
               busy={probing === it.url} disabled={busyAll} onPick={pick} onProbe={(u) => probe([{ url: u }], u)} />
           ))}
-          {!fixed.length && <div className="px-3.5 py-3 text-[11px] text-mut">读取中…</div>}
+          {!fixed.length && <div className="px-3.5 py-3 text-[11px] text-mut">Loading...…</div>}
         </div>
 
-        <GroupHead
-          title="推荐镜像"
-          hint="发布页每次换一批 · 当前线路置顶"
-          actions={
-            recommended?.length ? (
-              <button onClick={() => probe(recommended, "recommended")} disabled={busyAll}
-                className="text-[10.5px] text-primary pressable disabled:opacity-50">
-                {probing === "recommended" ? "检测中…" : `全部检测（${recommended.length}）`}
-              </button>
-            ) : undefined
-          }
-        />
-        <div className="rounded-(--r-md) bg-s2 divide-y divide-s3 overflow-hidden">
-          {loadingMirrors && <div className="flex justify-center py-6"><div className="w-6 h-6 spinner" /></div>}
-          {!loadingMirrors && !recommended?.length && (
-            <div className="px-3.5 py-3 text-[11px] text-mut">推荐页里没有可用的镜像地址</div>
-          )}
-          {!loadingMirrors && (recommended || []).map((it) => (
-            <Row key={it.url} item={it} current={state?.base === it.url} probe={probes[it.url]}
-              busy={probing === it.url} disabled={busyAll} onPick={pick} onProbe={(u) => probe([{ url: u }], u)} />
-          ))}
+        <div className="flex items-center gap-2 px-1 mt-4 mb-1.5">
+          <span className="text-[10.5px] font-semibold text-dim tracking-wide">Mirror servers</span>
+          <span className="text-[10px] text-dim">Usually works without a proxy · Guest browsing only</span>
+          <button onClick={() => { void readMirrors(); }} disabled={loadingMirrors}
+            className="ml-auto inline-flex items-center gap-1 text-[10.5px] text-primary pressable disabled:opacity-50">
+            <IRefresh size={12} />{loadingMirrors ? "Fetching...…" : "Refresh"}
+          </button>
         </div>
 
         <GroupHead
@@ -195,22 +176,29 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
           {loadingMirrors && <div className="flex justify-center py-6"><div className="w-6 h-6 spinner" /></div>}
           {!loadingMirrors && mirrorErr && (
             <div className="px-3.5 py-3">
-              <div className="text-[11.5px] text-danger">镜像线路获取失败</div>
+              <div className="text-[11.5px] text-danger">Could not load mirror servers</div>
               <div className="text-[10.5px] text-mut mt-1 break-all">{mirrorErr}</div>
             </div>
           )}
           {!loadingMirrors && !mirrorErr && mirrors?.length === 0 && (
-            <div className="px-3.5 py-3 text-[11px] text-mut">地址发布页里没有可用的镜像地址</div>
+            <div className="px-3.5 py-3 text-[11px] text-mut">No mirrors are currently listed</div>
           )}
           {!loadingMirrors && (mirrors || []).map((it) => (
             <Row key={it.url} item={it} current={state?.base === it.url} probe={probes[it.url]}
               busy={probing === it.url} disabled={busyAll} onPick={pick} onProbe={(u) => probe([{ url: u }], u)} />
           ))}
         </div>
+        {!loadingMirrors && !!mirrors?.length && (
+          <div className="flex justify-end px-1 mt-2">
+            <button onClick={() => probe(mirrors, "mirrors")} disabled={busyAll}
+              className="text-[10.5px] text-primary pressable disabled:opacity-50">
+              {probing === "mirrors" ? "Testing…" : `Test all（${mirrors.length}）`}
+            </button>
+          </div>
+        )}
 
         <div className="text-[10px] text-dim leading-relaxed px-1 mt-4">
-          切换后立即生效，请求链路与数据模型不变。这里的「检测」只探这一次；
-          日常的自动选线在 设置 → 网络 → 自动选择线路。
+          Server changes take effect immediately. Tap Test to check a server.
         </div>
       </div>
     </div>

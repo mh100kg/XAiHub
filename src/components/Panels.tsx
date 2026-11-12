@@ -19,15 +19,15 @@ export function EpisodesPanel({ videoId, episodes, current, onPick, onClose, bar
     <div className="flex flex-col h-full">
       {bare ? (
         <div className="shrink-0 flex items-center gap-2 px-4 pb-2">
-          <span className="text-[10.5px] text-mut">共 {episodes.length} 集</span>
-          <button onClick={() => setAsc((v) => !v)} className="ml-auto text-[11px] text-primary pressable">{asc ? "倒序" : "正序"}</button>
+          <span className="text-[10.5px] text-mut">{episodes.length} episodes</span>
+          <button onClick={() => setAsc((v) => !v)} className="ml-auto text-[11px] text-primary pressable">{asc ? "Newest first" : "Oldest first"}</button>
         </div>
       ) : (
         <div className="shrink-0 flex items-center gap-2 px-4 h-12">
-          <span className="text-[13.5px] font-bold text-on">选集</span>
-          <span className="text-[10.5px] text-mut">共 {episodes.length} 集</span>
-          <button onClick={() => setAsc((v) => !v)} className="ml-auto text-[11px] text-primary pressable">{asc ? "倒序" : "正序"}</button>
-          <button onClick={onClose} aria-label="关闭" className="w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
+          <span className="text-[13.5px] font-bold text-on">Episodes</span>
+          <span className="text-[10.5px] text-mut">{episodes.length} episodes</span>
+          <button onClick={() => setAsc((v) => !v)} className="ml-auto text-[11px] text-primary pressable">{asc ? "Newest first" : "Oldest first"}</button>
+          <button onClick={onClose} aria-label="Close" className="w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
             <IClose size={13} />
           </button>
         </div>
@@ -41,9 +41,9 @@ export function EpisodesPanel({ videoId, episodes, current, onPick, onClose, bar
             </button>
           ))}
         </div>
-        {!episodes.length && <div className="text-center text-[11.5px] text-dim py-8">暂无剧集</div>}
+        {!episodes.length && <div className="text-center text-[11.5px] text-dim py-8">No episodes yet</div>}
       </div>
-      {!bare && <div className="shrink-0 px-4 py-2.5 text-[10.5px] text-dim bg-s2/60">剧集 ID {videoId} · 点选即切换播放</div>}
+      {!bare && <div className="shrink-0 px-4 py-2.5 text-[10.5px] text-dim bg-s2/60">Episodes ID {videoId} · Select an episode to play it</div>}
     </div>
   );
 }
@@ -91,10 +91,10 @@ export function CommentsPanel({ videoId, ep, total, kind = "video", onClose }: {
     try {
       await api.commentSend(videoId, ep, t);
       setText("");
-      toast("评论已提交，审核通过后展示", "ok");
+      toast("Comment submitted，Visible after approval", "ok");
       load(1);
     } catch (e) {
-      toast((e as Error).message || "评论失败", "info");
+      toast((e as Error).message || "Could not post comment", "info");
     } finally {
       setSending(false);
     }
@@ -103,9 +103,9 @@ export function CommentsPanel({ videoId, ep, total, kind = "video", onClose }: {
   return (
     <div className="flex flex-col h-full">
       <div className="shrink-0 flex items-center gap-2 px-4 h-12">
-        <span className="text-[13.5px] font-bold text-on">评论</span>
-        <span className="text-[10.5px] text-mut">{fmt(total)} · 第 {ep} 集</span>
-        <button onClick={onClose} aria-label="关闭" className="ml-auto w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
+        <span className="text-[13.5px] font-bold text-on">Comments</span>
+        <span className="text-[10.5px] text-mut">{fmt(total)} · Episode {ep}</span>
+        <button onClick={onClose} aria-label="Close" className="ml-auto w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
           <IClose size={13} />
         </button>
       </div>
@@ -122,30 +122,30 @@ export function CommentsPanel({ videoId, ep, total, kind = "video", onClose }: {
               <p className="text-[12.5px] text-on/80 mt-1 leading-relaxed whitespace-pre-wrap">{c.text}</p>
               <div className="flex items-center gap-3 mt-1.5 text-[10.5px] text-dim">
                 <span className="flex items-center gap-1"><IHeart size={11} />{c.like_count || 0}</span>
-                {c.reply_count > 0 && <span>{c.reply_count} 条回复</span>}
+                {c.reply_count > 0 && <span>{c.reply_count} replies</span>}
               </div>
             </div>
           </div>
         )) : loading ? (
           <div className="flex justify-center py-10"><div className="w-7 h-7 spinner" /></div>
         ) : (
-          <Empty icon={<IHeart size={22} />} title="还没有评论" sub="来抢第一个沙发" />
+          <Empty icon={<IHeart size={22} />} title="No comments yet" sub="Be the first to comment" />
         )}
         {items.length > 0 && (
           <div className="flex justify-center py-4">
             {loading ? <div className="w-5 h-5 spinner" />
               : page < pages ? (
-                <button onClick={() => load(page + 1)} className="px-4 h-8 rounded-(--r-ctl) bg-s3 text-[11.5px] text-on/80 pressable">查看更多</button>
-              ) : <span className="text-[10.5px] text-dim">— 到底啦 —</span>}
+                <button onClick={() => load(page + 1)} className="px-4 h-8 rounded-(--r-ctl) bg-s3 text-[11.5px] text-on/80 pressable">See more</button>
+              ) : <span className="text-[10.5px] text-dim">— You have reached the end —</span>}
           </div>
         )}
       </div>
 
       <form className="shrink-0 flex items-center gap-2 px-3 py-2.5 bg-s2/70" onSubmit={(e) => { e.preventDefault(); send(); }}>
-        <Avatar size={30} name={user?.nickname || "我"} hue={322} />
+        <Avatar size={30} name={user?.nickname || "Me"} hue={322} />
         <input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)}
           onFocus={() => { if (!user) setLoginOpen(true); }}
-          placeholder={user ? "说点什么…" : "登录后参与评论"}
+          placeholder={user ? "Write a comment…" : "Sign in to comment"}
           className="flex-1 min-w-0 h-9 rounded-(--r-ctl) bg-s4 px-3.5 text-[12.5px] text-on placeholder-dim outline-none focus:bg-s3" />
         <button type="submit" disabled={!text.trim() || sending}
           className={`w-9 h-9 rounded-full flex items-center justify-center pressable ${text.trim() ? "brand-grad glow-neon" : "bg-s3 text-dim"}`}>
@@ -163,15 +163,15 @@ export function ArticlePanel({ title, html, cover, hot, onClose }: {
   const safeHtml = useMemo(() => sanitizeHtml(html), [html, strictSecurity]);
   const openSafeLink = (url: string) => {
     api.openUrl(url).catch(() => {
-      copyText(url).then(() => toast("链接已复制", "ok")).catch(() => toast("复制失败", "info"));
+      navigator.clipboard?.writeText(url).then(() => toast("Link copied", "ok")).catch(() => {});
     });
   };
   return (
     <div className="flex flex-col h-full">
       <div className="shrink-0 flex items-center gap-2 px-4 h-12">
-        <span className="text-[13.5px] font-bold text-on">图文详情</span>
-        {hot ? <span className="text-[10.5px] text-mut">{fmt(hot)} 热度</span> : null}
-        <button onClick={onClose} aria-label="关闭" className="ml-auto w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
+        <span className="text-[13.5px] font-bold text-on">Post details</span>
+        {hot ? <span className="text-[10.5px] text-mut">{fmt(hot)} Popularity</span> : null}
+        <button onClick={onClose} aria-label="Close" className="ml-auto w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
           <IClose size={13} />
         </button>
       </div>
@@ -179,7 +179,7 @@ export function ArticlePanel({ title, html, cover, hot, onClose }: {
         {cover && <img src={imageCover(cover)} alt="" className="w-full rounded-(--r-md) mb-3 object-cover" />}
         <h2 className="text-[16px] font-bold text-on leading-snug">{title}</h2>
         <div className="article-body mt-3" onClick={(e) => handleArticleClick(e, openSafeLink)} dangerouslySetInnerHTML={{ __html: safeHtml }} />
-        {!safeHtml && <p className="text-[12px] text-dim mt-4">这篇内容没有正文，可能只有图片或视频。</p>}
+        {!safeHtml && <p className="text-[12px] text-dim mt-4">This post has no text. It may contain only images or video.</p>}
       </div>
     </div>
   );
