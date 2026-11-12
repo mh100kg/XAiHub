@@ -4,6 +4,7 @@ mod logging;
 #[cfg(target_os = "macos")]
 mod macos_titlebar;
 mod media;
+mod subtitle;
 mod net;
 mod network_policy;
 mod playback_log;
@@ -131,6 +132,8 @@ pub fn run() {
             });
         })
         .invoke_handler(tauri::generate_handler![
+            subtitle::read_subtitle,
+            subtitle::translate_subtitle,
             api::app_boot,
             playback_log::playback_log_status,
             playback_log::playback_log_set,

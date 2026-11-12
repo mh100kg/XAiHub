@@ -1,5 +1,7 @@
 import React, { useEffect, useImperativeHandle, useRef, forwardRef, useState } from "react";
 import Hls from "hls.js";
+import { invoke } from "@tauri-apps/api/core";
+import { captureSubtitleFrame } from "../subtitleFrame";
 import { isLocalMedia, platform, playlist } from "../api";
 import { mediaResource, observeHls, usePlayerDiagnostics } from "../playbackDiagnostics";
 import { usePlaybackActivity } from "../usePlaybackActivity";
@@ -60,6 +62,63 @@ const VideoSurface = forwardRef<VideoHandle, Props>(function VideoSurface(
   const recoverTimerRef = useRef<number | null>(null);
   const lastSizeRef = useRef({ w: 0, h: 0 });
   const [ready, setReady] = useState(false);
+  const [vietnamese, setVietnamese] = useState(() => localStorage.getItem("hg-vietnamese-subtitles") === "on");
+  const [subtitle, setSubtitle] = useState("");
+  const [subtitleError, setSubtitleError] = useState("");
+  const translations = useRef(new Map<string, string>());
+
+  useEffect(() => {
+    setSubtitle("");
+    setSubtitleError("");
+    if (platform !== "ios" || !active || !vietnamese) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const canvas = document.createElement("canvas");
+    let disposed = false;
+    let busy = false;
+    let blocked = false;
+    let revision = 0;
+    let previous = "";
+    const reset = () => {
+      revision++;
+      previous = "";
+      setSubtitle("");
+    };
+    const sample = async () => {
+      if (busy || blocked || video.paused) return;
+      busy = true;
+      const token = revision;
+      const current = () => !disposed && token === revision;
+      try {
+        const frame = captureSubtitleFrame(video, canvas);
+        if (!frame) return;
+        const text = (await invoke<string>("read_subtitle", { jpeg: frame.jpeg.split(",")[1] })).trim();
+        if (!current() || text === previous) return;
+        previous = text;
+        setSubtitle("");
+        if (!text) return;
+        let translated = translations.current.get(text);
+        if (!translated) {
+          translated = await invoke<string>("translate_subtitle", { text });
+          if (translations.current.size >= 200) translations.current.clear();
+          translations.current.set(text, translated);
+        }
+        if (current()) setSubtitle(translated);
+      } catch (error) {
+        if (current()) {
+          blocked = true;
+          setSubtitleError(error instanceof Error ? error.message : String(error));
+        }
+      } finally { busy = false; }
+    };
+    video.addEventListener("seeking", reset);
+    const timer = window.setInterval(() => { void sample(); }, 500);
+    return () => {
+      disposed = true;
+      window.clearInterval(timer);
+      video.removeEventListener("seeking", reset);
+    };
+  }, [src, active, vietnamese]);
   const { trace, requestSeek } = usePlayerDiagnostics(videoRef, hlsRef, { ...diagnosticContext, active, resource: mediaResource(src) });
   const activity = usePlaybackActivity(videoRef, hlsRef, { active, autoPlay, src, trace });
 
@@ -399,6 +458,24 @@ const VideoSurface = forwardRef<VideoHandle, Props>(function VideoSurface(
           }
         }}
       />
+      {platform === "ios" && active && (
+        <>
+          <button type="button" aria-pressed={vietnamese}
+            className="absolute z-20 left-3 top-[max(3rem,env(safe-area-inset-top))] rounded bg-black/75 px-2 py-1 text-xs text-white"
+            onPointerDown={(event) => event.stopPropagation()}
+            onPointerUp={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              localStorage.setItem("hg-vietnamese-subtitles", vietnamese ? "off" : "on");
+              setVietnamese(!vietnamese);
+            }}>Phụ đề Việt</button>
+          {vietnamese && (subtitle || subtitleError) && (
+            <div className="pointer-events-none absolute inset-x-8 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-20 text-center text-sm text-white">
+              <span className="bg-black/85 px-2 py-1">{subtitleError || subtitle}</span>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 });
