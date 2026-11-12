@@ -2,6 +2,9 @@ name: iOS check (unsigned ipa)
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["main", "ios-english-double-tap"]
+    tags: ["v*"]
 
 jobs:
   ios:
