@@ -75,7 +75,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
     () => typeof window !== "undefined" && window.innerWidth > window.innerHeight,
   );
 
-  /* 单击清屏 vs 双击暂停计时器 */
+  /* Single tap toggles controls. Double tap seeks. */
   const lastTapRef = useRef<{ time: number; timer: number | null }>({ time: 0, timer: null });
   const clearTapTimer = () => {
     if (lastTapRef.current.timer) {
@@ -164,7 +164,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
         title: post?.title || "",
         cover: post?.cover || "",
         desc: post?.content || post?.desc || "",
-        author: "黄果吃瓜",
+        author: "YellowFruit Buzz",
         authorId: -1,
         tags: post?.tags || [],
         score: 0,
@@ -177,7 +177,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
         title: detail?.title || cards[curId]?.title || "",
         cover: detail?.cover || cards[curId]?.cover || "",
         desc: detail?.description || "",
-        author: detail?.author?.name || "黄果短剧",
+        author: detail?.author?.name || "YellowFruit Short Dramas",
         authorId: detail?.author?.id || -1,
         tags: detail?.tags || [],
         score: detail?.score || 0,
@@ -194,7 +194,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
   /* 分享：复制播放链接 */
   const shareLink = () => {
     const u = kind === "post" ? (posts[curId]?.video_url || meta.title) : `https://huangguoai.com/video/${curId}/`;
-    navigator.clipboard?.writeText(u).then(() => toast("链接已复制", "ok")).catch(() => {});
+    navigator.clipboard?.writeText(u).then(() => toast("Link copied", "ok")).catch(() => {});
   };
 
   /* 倍速：长按 / 锁定 → 2.0x，否则用基准倍速 */
@@ -208,8 +208,8 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
   const rotated = !isDesktop && fs && isLandscapeVideo && !vpLandscape;
 
   /* 借鉴 stclock1988/hghub-ios (PlayerView.swift keepPlayingThroughTransition)：
-     iOS 在横竖屏几何旋转或全屏视图层级切换期间，系统底层 AVPlayer / WebKit 视频层可能被短暂挂起暂停。
-     在过渡窗口期内分批重申 play()，确保旋转/全屏切换不中断播放。 */
+     iOS 在横竖屏几何旋转或Full screen视图层级切换期间，系统底层 AVPlayer / WebKit 视频层可能被短暂挂起Pause。
+     在过渡窗口期内分批重申 play()，确保旋转/Full screen切换不中断Play。 */
   const keepPlayingTimers = useRef<number[]>([]);
   const keepPlayingThroughTransition = useCallback(() => {
     keepPlayingTimers.current.forEach((id) => window.clearTimeout(id));
@@ -282,8 +282,8 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
   }, [isDesktop, fs, isLandscapeVideo]);
 
   /* 全屏切换或视口旋转后校准滚动容器 scrollTop：
-     - 进入全屏时非当前项已隐藏，当前项位于顶部 scrollTop = 0；
-     - 退出全屏回到竖屏列表时，立即将 scrollTop 重新对齐到 index * clientHeight，防止错位到其它视频封面。 */
+     - 进入Full screen时非Current项已隐藏，Current项位于顶部 scrollTop = 0；
+     - Exit full screen回到竖屏列表时，立即将 scrollTop 重新对齐到 index * clientHeight，防止错位到其它视频Cover。 */
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return undefined;
@@ -368,11 +368,11 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
     api.play(curId, curEp)
       .then((info) => {
         if (!alive) return;
-        if (!info?.video_url) throw new Error("暂无播放地址");
+        if (!info?.video_url) throw new Error("No playback URL available");
         setPlayUrls((m) => ({ ...m, [playKey]: info.video_url }));
         addHistory(curId, curEp);
       })
-      .catch((e) => { if (alive) setErr((e as Error).message || "取播放地址失败"); });
+      .catch((e) => { if (alive) setErr((e as Error).message || "Could not load the video URL"); });
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curId, curEp, playTry]);
@@ -529,7 +529,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
     }
   };
 
-  /* —— 长按 2x（上滑锁定） / 横拖定位 / 单击清屏 / 双击暂停 —— */
+  /* Long press for 2x, horizontal drag to scrub, and double tap to seek. */
   const onDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (isDesktop || controlsLocked || !active || !e.isPrimary || pinchRef.current || gesture.current || e.button !== 0) return;
     const el = e.currentTarget;
@@ -612,7 +612,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
       setHoldSpeed(false);
       if (!cancelled && lockArmedRef.current) {
         setSpeedLock(true);
-        toast("已锁定 2.0x 倍速 · 点顶部标签解除", "info");
+        toast("Locked at 2.0x · Tap the top label to unlock", "info");
       }
       lockArmedRef.current = false;
       setLockArmed(false);
@@ -635,11 +635,18 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
     const moveDist = e ? Math.hypot(e.clientX - g.x, e.clientY - g.y) : 0;
     if (Date.now() - g.t < 260 && moveDist < 16) {
       const now = Date.now();
-      if (now - lastTapRef.current.time < 280) {
-        // 双击屏幕：切换暂停 / 播放
+      if (e && lastTapRef.current.timer !== null && now - lastTapRef.current.time < 280) {
         clearTapTimer();
         lastTapRef.current.time = 0;
-        videoRef.current?.toggle();
+        const player = videoRef.current;
+        const video = player?.el();
+        if (!player || !video || !Number.isFinite(video.duration) || video.duration <= 0) return;
+        const bounds = e.currentTarget.getBoundingClientRect();
+        const offset = e.clientX < bounds.left + bounds.width / 2 ? -5 : 5;
+        const target = Math.max(0, Math.min(video.duration - 0.15, video.currentTime + offset));
+        setErr("");
+        setTime(target);
+        player.seek(target, "double_tap");
       } else {
         // 单击屏幕：切换清屏模式（消除或恢复所有界面控件，只显示视频内容）
         lastTapRef.current.time = now;
@@ -647,7 +654,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
         lastTapRef.current.timer = window.setTimeout(() => {
           lastTapRef.current.timer = null;
           setClean((c) => !c);
-        }, 250) as unknown as number;
+        }, 280);
       }
     }
   };
@@ -729,8 +736,8 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
       const v = videoRef.current?.el();
       if (document.pictureInPictureElement) await document.exitPictureInPicture();
       else if (v && document.pictureInPictureEnabled) await v.requestPictureInPicture();
-      else toast("当前环境不支持画中画", "info");
-    } catch { toast("画中画开启失败", "info"); }
+      else toast("Picture-in-picture is unavailable on this device", "info");
+    } catch { toast("Could not start picture-in-picture", "info"); }
   };
 
   const requireLogin = () => { if (!user) { setLoginOpen(true); return false; } return true; };
@@ -739,14 +746,14 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
     if (!curId) return;
     const on = toggleLikeLocal(curId);
     setHeartBurst((n) => n + 1);
-    toast(on ? "已加入喜欢" : "已取消喜欢", on ? "heart" : "info");
+    toast(on ? "Liked" : "Like removed", on ? "heart" : "info");
     if (requireLogin()) { if (kind === "post") api.postLike(curId, on).catch(() => {}); else api.like(curId, curEp, on).catch(() => {}); }
   };
 
   const onFav = () => {
     if (!curId) return;
     const on = toggleFavLocal(curId);
-    toast(on ? "已收藏" : "已取消收藏", on ? "star" : "info");
+    toast(on ? "Added to favorites" : "Removed from favorites", on ? "star" : "info");
     if (requireLogin()) { if (kind === "post") api.postCollect(curId, on).catch(() => {}); else api.collect(curId, on).catch(() => {}); }
   };
 
@@ -754,7 +761,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
     const uid = meta.authorId > 0 ? meta.authorId : undefined;
     if (!uid) return;
     const on = toggleFollowLocal(uid);
-    toast(on ? `已关注 ${detail?.author?.name}` : "已取消关注", on ? "ok" : "info");
+    toast(on ? `Following ${detail?.author?.name}` : "Unfollowed", on ? "ok" : "info");
     if (requireLogin()) api.follow(uid, on).catch(() => {});
   };
 
@@ -867,11 +874,11 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                   {err && (
                     <div className="absolute inset-0 z-30 flex items-center justify-center">
                       <div className="rounded-xl p-5 flex flex-col items-center gap-3 text-[13px] hg-ink-2" style={{ background: "rgba(0,0,0,.74)" }}>
-                        <span>视频暂时无法加载</span>
+                        <span>Video is temporarily unavailable</span>
                         <span className="text-[10.5px] hg-ink-4 max-w-[240px] text-center break-all">{err}</span>
                         <button className="px-4 py-1.5 rounded-full hg-chip-strong hg-link text-[12.5px] font-semibold pressable"
                           onClick={() => { setErr(""); setWaiting(true); videoRef.current?.reload(); }}>
-                          重新加载
+                          Reload
                         </button>
                       </div>
                     </div>
@@ -881,13 +888,13 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                   {!isDesktop && (!clean || holdSpeed) && (holdSpeed || speedLock || rate !== 1) && (
                     <button
                       onClick={() => {
-                        if (speedLock) { setSpeedLock(false); toast("已解除倍速锁定", "info"); }
+                        if (speedLock) { setSpeedLock(false); toast("Playback speed unlocked", "info"); }
                         else if (rate !== 1 && !holdSpeed) setRate(1);
                       }}
                       className={`absolute left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3.5 h-8 rounded-full backdrop-blur-md text-[12px] font-bold elev-2 pressable ${speedLock ? "bg-primary text-on-primary" : "hg-chip hg-gold"}`}
                       style={{ top: rotated || vpLandscape ? 14 : "calc(var(--sat, 0px) + 54px)" }}>
                       <IBoltF size={13} />
-                      {effRate}x {speedLock ? "已锁定 · 点按解除" : holdSpeed ? "倍速中 · 松开恢复" : "倍速"}
+                      {effRate}x {speedLock ? "Locked · Tap to unlock" : holdSpeed ? "Fast playback · Release to resume" : "Speed"}
                     </button>
                   )}
                   {!isDesktop && holdSpeed && (
@@ -895,7 +902,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                       className={`absolute left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 h-10 rounded-xl backdrop-blur-md elev-2 transition-all duration-200 ${lockArmed ? "bg-primary text-on-primary scale-110" : "hg-chip-strong hg-ink-2"}`}
                       style={{ top: "38%" }}>
                       <ILockF size={16} />
-                      <span className="text-[12.5px] font-bold">{lockArmed ? "松开锁定 2.0x" : "上滑到此锁定倍速"}</span>
+                      <span className="text-[12.5px] font-bold">{lockArmed ? "Release to lock at 2.0x" : "Swipe up here to lock speed"}</span>
                     </div>
                   )}
 
@@ -904,11 +911,11 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                     <>
                       <div className="absolute right-4 z-40 flex items-center gap-2"
                         style={{ top: rotated || vpLandscape ? 14 : "calc(var(--sat, 0px) + 8px)" }}>
-                        <button onClick={lockControls} aria-label="锁定播放控制" title="锁定播放控制" aria-pressed={false}
+                        <button onClick={lockControls} aria-label="Lock playback controls" title="Lock playback controls" aria-pressed={false}
                           className="hg-chip-strong w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center pressable elev-1">
                           <ILockF size={17} />
                         </button>
-                        <button onClick={exitFs} aria-label="退出全屏"
+                        <button onClick={exitFs} aria-label="Exit full screen"
                           className="hg-chip-strong w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center pressable elev-1">
                           <ICompress size={18} />
                         </button>
@@ -918,7 +925,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                           onClick={() => setZoom({ scale: 1, x: 0, y: 0, gesturing: false })}
                           className="hg-chip-strong absolute left-4 z-40 px-3 h-8 rounded-full backdrop-blur-md text-[11.5px] font-semibold flex items-center gap-1 pressable elev-1"
                           style={{ top: rotated || vpLandscape ? 14 : "calc(var(--sat, 0px) + 8px)" }}>
-                          还原画面 ({zoom.scale.toFixed(1)}x)
+                          Reset view ({zoom.scale.toFixed(1)}x)
                         </button>
                       )}
                       <div className="absolute inset-x-0 z-30 px-4" style={{ bottom: rotated || vpLandscape ? 46 : "calc(var(--sab, 0px) + 52px)", height: 26 }}>
@@ -968,11 +975,11 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
               {isActive && kind === "video" && !playUrl && !!err && (
                 <div className="absolute inset-0 z-30 flex items-center justify-center">
                   <div className="rounded-xl p-5 flex flex-col items-center gap-3 text-[13px] hg-ink-2" style={{ background: "rgba(0,0,0,.74)" }}>
-                    <span>视频暂时无法加载</span>
+                    <span>Video is temporarily unavailable</span>
                     <span className="text-[10.5px] hg-ink-4 max-w-[240px] text-center break-all">{err}</span>
                     <button className="px-4 py-1.5 rounded-full hg-chip-strong hg-link text-[12.5px] font-semibold pressable"
                       onClick={() => { setErr(""); setWaiting(true); setPlayTry((n) => n + 1); }}>
-                      重新加载
+                      Reload
                     </button>
                   </div>
                 </div>
@@ -984,7 +991,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                   <button type="button" onClick={() => setPanel("article")}
                     className="flex items-center gap-2 h-11 px-5 rounded-full text-[13.5px] font-semibold pressable elev-3"
                     style={{ background: "rgba(255,255,255,.94)", color: "#0b0e15" }}>
-                    <IFileText size={17} />查看图文详情
+                    <IFileText size={17} />Read article
                   </button>
                 </div>
               )}
@@ -1014,16 +1021,16 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                         }}
                         className="hg-chip-strong backdrop-blur-md px-3 h-7 rounded-full text-[11.5px] font-semibold flex items-center gap-1.5 pressable elev-1">
                         {zoom.scale > 1.05
-                          ? `还原缩放 (${zoom.scale.toFixed(1)}x)`
+                          ? `Reset zoom (${zoom.scale.toFixed(1)}x)`
                           : portraitFit === "contain"
-                            ? "放大铺满"
-                            : "完整适应"}
+                            ? "Fill screen"
+                            : "Fit to screen"}
                       </button>
                       <button
                         type="button"
                         onClick={enterFs}
                         className="hg-chip-strong backdrop-blur-md px-3 h-7 rounded-full text-[11.5px] font-semibold flex items-center gap-1 pressable elev-1">
-                        <IExpand size={12} />横屏全屏
+                        <IExpand size={12} />Landscape full screen
                       </button>
                     </>
                   )}
@@ -1032,7 +1039,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                       type="button"
                       onClick={() => setZoom({ scale: 1, x: 0, y: 0, gesturing: false })}
                       className="hg-chip-strong backdrop-blur-md px-3 h-7 rounded-full text-[11.5px] font-semibold flex items-center gap-1 pressable elev-1">
-                      还原画面 ({zoom.scale.toFixed(1)}x)
+                      Reset view ({zoom.scale.toFixed(1)}x)
                     </button>
                   )}
                 </div>
@@ -1042,13 +1049,13 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
               {!fs && !clean && mode === "context" ? (
                 isDesktop ? (
                   <div className="desktop-context-header">
-                    <button onClick={onBack} aria-label="返回"><IBack size={17} /></button>
+                    <button onClick={onBack} aria-label="Back"><IBack size={17} /></button>
                     <span>{title}</span>
                     <small>{index + 1} / {videoIds.length}</small>
                   </div>
                 ) : (
                   <div className="absolute inset-x-0 z-20 flex items-center gap-2 px-2.5" style={{ top: "calc(var(--sat, 0px) + 8px)", paddingRight: 148 }}>
-                    <button onClick={onBack} aria-label="返回" className="hg-chip w-9 h-9 rounded-full flex items-center justify-center pressable elev-1"><IBack size={20} /></button>
+                    <button onClick={onBack} aria-label="Back" className="hg-chip w-9 h-9 rounded-full flex items-center justify-center pressable elev-1"><IBack size={20} /></button>
                     <span className="text-[14.5px] font-semibold hg-ink hg-ov-shadow truncate">{title}</span>
                     <span className="ml-auto px-2 py-0.5 rounded-full hg-chip text-[11px] font-semibold" style={{ color: "rgba(255,255,255,.9)" }}>{index + 1} / {videoIds.length}</span>
                   </div>
@@ -1060,21 +1067,21 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
               {!fs && !clean && !isDesktop && (
                 <div className="absolute right-3 z-20 flex flex-col items-center gap-[16px]"
                   style={{ bottom: `calc(var(--sab, 0px) + ${bottomInset + 92}px)` }}>
-                  <button onClick={onFav} className="flex flex-col items-center gap-1 pressable" aria-pressed={isFav(curId)} aria-label="收藏">
+                  <button onClick={onFav} className="flex flex-col items-center gap-1 pressable" aria-pressed={isFav(curId)} aria-label="Favorite">
                     {isFav(curId) ? <IStarF size={27} className="hg-gold" /> : <IStar size={27} className="hg-ink hg-ov-shadow" />}
-                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">收藏</span>
+                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">Favorite</span>
                   </button>
-                  <button onClick={() => setPanel("comments")} className="flex flex-col items-center gap-1 pressable" aria-label="评论">
+                  <button onClick={() => setPanel("comments")} className="flex flex-col items-center gap-1 pressable" aria-label="Comments">
                     <ICommentF size={26} className="hg-ink hg-ov-shadow" />
-                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">评论</span>
+                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">Comments</span>
                   </button>
-                  <button onClick={enterFs} className="flex flex-col items-center gap-1 pressable" aria-label="全屏">
+                  <button onClick={enterFs} className="flex flex-col items-center gap-1 pressable" aria-label="Full screen">
                     <IExpand size={26} className="hg-ink hg-ov-shadow" />
-                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">全屏</span>
+                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">Full screen</span>
                   </button>
-                  <button onClick={shareLink} className="flex flex-col items-center gap-1 pressable" aria-label="分享">
+                  <button onClick={shareLink} className="flex flex-col items-center gap-1 pressable" aria-label="Share">
                     <ILink size={25} className="hg-ink hg-ov-shadow" />
-                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">分享</span>
+                    <span className="text-[10.5px] hg-ink-2 hg-ov-shadow">Share</span>
                   </button>
                 </div>
               )}
@@ -1083,10 +1090,10 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
               {!fs && isDesktop && (
               <div className="absolute z-20 flex flex-col items-center desktop-social">
                 <div className="desktop-browse-inline">
-                  <button onClick={() => go(-1)} disabled={index === 0} aria-label="上一个" title="上一个 ↑">
+                  <button onClick={() => go(-1)} disabled={index === 0} aria-label="Previous" title="Previous ↑">
                     <IChevronUp size={19} strokeWidth={1.8} />
                   </button>
-                  <button onClick={() => go(1)} disabled={index >= videoIds.length - 1} aria-label="下一个" title="下一个 ↓">
+                  <button onClick={() => go(1)} disabled={index >= videoIds.length - 1} aria-label="Next" title="Next ↓">
                     <IChevronDown size={19} strokeWidth={1.8} />
                   </button>
                   <small>{String(index + 1).padStart(2, "0")} / {String(videoIds.length).padStart(2, "0")}</small>
@@ -1113,14 +1120,14 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
 
                     <button onClick={() => setPanel("episodes")} className="flex flex-col items-center gap-1 pressable">
                       <IList size={26} className="text-white tsh" />
-                      <span className="text-[10.5px] text-white/90">选集</span>
+                      <span className="text-[10.5px] text-white/90">Episodes</span>
                     </button>
                   </>
                 )}
 
                 <button onClick={shareLink} className="flex flex-col items-center gap-1 pressable">
                   <ILink size={25} className="text-white tsh" />
-                  <span className="text-[10.5px] text-white/90">分享</span>
+                  <span className="text-[10.5px] text-white/90">Share</span>
                 </button>
               </div>
               )}
@@ -1133,11 +1140,11 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                   {episodes.length > 0 && (
                     <span className="shrink-0 px-1.5 py-px rounded-md text-[10px] font-bold text-white"
                       style={{ background: "rgba(255,255,255,.16)" }}>
-                      第 {curEp}/{episodes.length} 集
+                      Episode {curEp}/{episodes.length}
                     </span>
                   )}
                   {!!meta.score && (
-                    <span className="shrink-0 text-[11px] font-bold hg-gold hg-ov-shadow">{meta.score.toFixed(1)} 分</span>
+                    <span className="shrink-0 text-[11px] font-bold hg-gold hg-ov-shadow">{meta.score.toFixed(1)}</span>
                   )}
                 </div>
 
@@ -1146,9 +1153,9 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                 {/* 描述（单行，点开展开） */}
                 <button onClick={() => setDescOpen((v) => !v)} className="mt-1 text-left w-full pressable group">
                   <p className={`text-[11.5px] leading-relaxed hg-ink-4 ${descOpen ? "" : "clamp-1"}`}>
-                    {meta.desc || "暂无简介"}
+                    {meta.desc || "No description"}
                   </p>
-                  <span className="text-[10.5px] hg-link font-semibold">{descOpen ? "收起" : "展开简介"}</span>
+                  <span className="text-[10.5px] hg-link font-semibold">{descOpen ? "Collapse" : "Show description"}</span>
                 </button>
               </div>
               )}
@@ -1162,7 +1169,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                   <div className="relative pt-1.5 pb-2">
                     <button onClick={() => setPanel("detail")}
                       className="px-4 flex items-center gap-0.5 text-[10.5px] font-medium hg-ink hg-ov-shadow pressable">
-                      详情 · 第 {curEp} 集<IChevR size={11} />
+                      Details · Episode {curEp}<IChevR size={11} />
                     </button>
                     {isActive && (
                       <div className="mx-4 mt-1.5 relative" style={{ height: 22, touchAction: "none" }}
@@ -1196,7 +1203,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
           seekEnabled={active && !controlsLocked}
           seekKey={playKey}
           nextDisabled={!episodes.some((e) => e.ep_num === curEp + 1) && index >= videoIds.length - 1}
-          nextTitle={episodes.some((e) => e.ep_num === curEp + 1) ? "下一集 E" : "下一部 ↓"}
+          nextTitle={episodes.some((e) => e.ep_num === curEp + 1) ? "Next episode E" : "Next series ↓"}
           onToggle={() => videoRef.current?.toggle()}
           onSeek={(t, source) => { videoRef.current?.seek(t, source); setTime(t); }}
           onSeekInteraction={(phase, input, target, pointerTarget) => videoRef.current?.trace(`seek.input.${phase}`, { input, target, pointer_target: pointerTarget })}
@@ -1247,13 +1254,13 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
               {/* 双栏抽屉：详情 / 选集 */}
               <div className="shrink-0 flex items-center gap-2 px-4 pb-2">
                 <div className="flex flex-1 bg-s3 rounded-(--r-ctl) p-1">
-                  {([["detail", "详情"], ["episodes", "选集"]] as const).map(([k, l]) => (
+                  {([["detail", "Details"], ["episodes", "Episodes"]] as const).map(([k, l]) => (
                     <button key={k} onClick={() => setPanel(k)}
                       className={`flex-1 h-8 rounded-(--r-ctl) text-[12px] font-semibold pressable ${panel === k ? "text-on-sec" : "text-mut"}`}
                       style={panel === k ? { background: "var(--p-sec)", color: "var(--p-primary)" } : undefined}>{l}</button>
                   ))}
                 </div>
-                <button onClick={() => setPanel(null)} aria-label="关闭"
+                <button onClick={() => setPanel(null)} aria-label="Close"
                   className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
                   <IClose size={14} />
                 </button>
@@ -1272,13 +1279,13 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                       <div className="flex-1 min-w-0">
                         <div className="text-[13.5px] font-bold text-on leading-snug clamp-2">{meta.title}</div>
                         <div className="flex items-center gap-2 mt-1.5">
-                          {!!meta.score && <span className="text-[12px] font-bold text-amber">{meta.score.toFixed(1)} 分</span>}
-                          {episodes.length > 0 && <span className="text-[10.5px] text-mut">共 {episodes.length} 集</span>}
+                          {!!meta.score && <span className="text-[12px] font-bold text-amber">{meta.score.toFixed(1)}</span>}
+                          {episodes.length > 0 && <span className="text-[10.5px] text-mut">{episodes.length} episodes</span>}
                         </div>
                         <div className="flex gap-3 mt-2 text-[10.5px] text-mut">
-                          <span>点赞 {fmt(meta.like)}</span>
-                          <span>收藏 {fmt(meta.collect)}</span>
-                          <span>评论 {fmt(meta.comment)}</span>
+                          <span>Like {fmt(meta.like)}</span>
+                          <span>Favorite {fmt(meta.collect)}</span>
+                          <span>Comments {fmt(meta.comment)}</span>
                         </div>
                       </div>
                     </div>
@@ -1288,20 +1295,20 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                       <Avatar size={34} name={meta.author} hue={220} />
                       <div className="flex-1 min-w-0">
                         <div className="text-[12.5px] font-semibold text-on truncate">{meta.author}</div>
-                        <div className="text-[10px] text-mut">作者</div>
+                        <div className="text-[10px] text-mut">Creator</div>
                       </div>
                       {meta.authorId > 0 && (
                         <button onClick={onFollow}
                           className={`h-7 px-3 rounded-full text-[11px] font-semibold pressable ${store.follows.includes(meta.authorId) ? "bg-s3 text-mut" : "bg-primary text-on-primary"}`}>
-                          {store.follows.includes(meta.authorId) ? "已关注" : "+ 关注"}
+                          {store.follows.includes(meta.authorId) ? "Following" : "+ Follow"}
                         </button>
                       )}
                     </div>
 
                     {/* 简介 */}
                     <div className="mt-4">
-                      <div className="text-[11px] font-semibold text-dim mb-1.5">简介</div>
-                      <p className="text-[11.5px] leading-relaxed text-mut whitespace-pre-wrap">{meta.desc || "暂无简介"}</p>
+                      <div className="text-[11px] font-semibold text-dim mb-1.5">Description</div>
+                      <p className="text-[11.5px] leading-relaxed text-mut whitespace-pre-wrap">{meta.desc || "No description"}</p>
                     </div>
                   </div>
                 )}
@@ -1313,13 +1320,13 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
       </div>
       {!isDesktop && !fs && !clean && !controlsLocked && active && (
         <div className="absolute right-3 z-40 flex items-center gap-2" style={{ top: "calc(var(--sat, 0px) + 6px)" }}>
-          <button onClick={() => setMuted(m => !m)} aria-label={muted ? "取消静音" : "静音"}
+          <button onClick={() => setMuted(m => !m)} aria-label={muted ? "Unmute" : "Mute"}
             className="hg-chip w-9 h-9 rounded-full flex items-center justify-center pressable elev-1">
             {muted ? <IVolMute size={17} /> : <IVol size={17} />}
           </button>
-          <button onClick={lockControls} aria-label="锁定播放控制" title="锁定播放控制" aria-pressed={false}
+          <button onClick={lockControls} aria-label="Lock playback controls" title="Lock playback controls" aria-pressed={false}
             className="hg-chip w-9 h-9 rounded-full flex items-center justify-center pressable elev-1"><ILockF size={17} /></button>
-          <button onClick={() => store.setTab("search")} aria-label="搜索"
+          <button onClick={() => store.setTab("search")} aria-label="Search"
             className="hg-chip w-9 h-9 rounded-full flex items-center justify-center pressable elev-1"><ISearch size={18} /></button>
         </div>
       )}

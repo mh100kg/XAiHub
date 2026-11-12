@@ -30,7 +30,7 @@ export default function Home({ active, bottomInset }: { active: boolean; bottomI
       setPage(p);
       if (!list.length || (res?.pagination && p >= res.pagination.pages)) setDone(true);
     } catch (e) {
-      const message = (e as Error).message || "加载失败";
+      const message = (e as Error).message || "Loading failed";
       setError(message);
       toast(message, "info");
     } finally {
@@ -50,10 +50,10 @@ export default function Home({ active, bottomInset }: { active: boolean; bottomI
           onNearEnd={() => { if (!loading && !done) load(page + 1); }} />
       ) : !loading && error ? (
         <div className="absolute inset-0 flex items-center justify-center bg-bg">
-          <Empty icon={<ISearch size={26} />} title="首页加载失败" sub={error} action="重试" onAction={() => void load(1)} />
+          <Empty icon={<ISearch size={26} />} title="Could not load the home page" sub={error} action="Retry" onAction={() => void load(1)} />
         </div>
       ) : !loading && done ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-bg"><Empty icon={<ISearch size={26} />} title="暂无视频" /></div>
+        <div className="absolute inset-0 flex items-center justify-center bg-bg"><Empty icon={<ISearch size={26} />} title="No videos yet" /></div>
       ) : (
         <div className="absolute inset-0 flex items-center justify-center"><div className="w-9 h-9 spinner" /></div>
       )}

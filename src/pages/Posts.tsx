@@ -50,8 +50,8 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 flex items-center gap-2 px-2 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={19} /></button>
-        <span className="text-[14px] font-bold text-on">黄果吃瓜</span>
-        <span className="text-[10.5px] text-mut ml-1">圈内爆料</span>
+        <span className="text-[14px] font-bold text-on">YellowFruit Buzz</span>
+        <span className="text-[10.5px] text-mut ml-1">Entertainment news</span>
       </div>
       <div className="flex-1 scroll-y px-3 pt-3 pb-8">
         {items.length ? (
@@ -74,7 +74,7 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
         ) : loading ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : (
-          <Empty icon={<IFireF size={26} />} title="暂无吃瓜内容" sub="稍后再来看看" />
+          <Empty icon={<IFireF size={26} />} title="No posts yet" sub="Check back later" />
         )}
         <div ref={sentinel} className="h-10" />
         {loading && <div className="flex justify-center py-2"><div className="w-6 h-6 spinner" /></div>}
@@ -95,7 +95,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
   const safeHtml = useMemo(() => sanitizeHtml(content), [content, strictSecurity]);
   const openSafeLink = (url: string) => {
     api.openUrl(url).catch(() => {
-      navigator.clipboard?.writeText(url).then(() => toast("链接已复制", "ok")).catch(() => {});
+      navigator.clipboard?.writeText(url).then(() => toast("Link copied", "ok")).catch(() => {});
     });
   };
 
@@ -103,7 +103,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
     let alive = true;
     api.post(id)
       .then((p) => { if (alive) setPost(p); })
-      .catch((e) => { if (alive) setErr((e as Error).message || "加载失败"); });
+      .catch((e) => { if (alive) setErr((e as Error).message || "Loading failed"); });
     return () => { alive = false; };
   }, [id]);
 
@@ -111,12 +111,12 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 flex items-center gap-2 px-2 bg-s1" style={{ paddingTop: isMobile ? "var(--sat, 0px)" : 0, height: isMobile ? "calc(44px + var(--sat, 0px))" : 44 }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={19} /></button>
-        <span className="text-[13.5px] font-semibold text-on">吃瓜详情</span>
+        <span className="text-[13.5px] font-semibold text-on">Post details</span>
       </div>
 
       <div className="flex-1 scroll-y pb-8">
         {err ? (
-          <Empty icon={<IFireF size={26} />} title="加载失败" sub={err} />
+          <Empty icon={<IFireF size={26} />} title="Loading failed" sub={err} />
         ) : !post ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : (
@@ -126,7 +126,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
                 <Player src={post.video_url} poster={cover(post.cover)} autoPlay active={active} controls muted={muted}
                   onToggleMute={() => setMuted((m) => !m)} diagnosticContext={{ video_id: id, active }} className="w-full h-full" />
               ) : (
-                <button onClick={() => { if (post.video_url) setPlay(true); else toast("该帖子没有视频", "info"); }} className="absolute inset-0">
+                <button onClick={() => { if (post.video_url) setPlay(true); else toast("This post has no video", "info"); }} className="absolute inset-0">
                   <Img src={post.cover} eager />
                   <span className="absolute inset-0 flex items-center justify-center">
                     <span className="w-14 h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center elev-2">

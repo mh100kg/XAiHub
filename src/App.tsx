@@ -21,13 +21,13 @@ import { IGrid, IGridF, IHome, IHomeF, ISearch, IUser, IUserF, Logo } from "./ic
 function TabBar() {
   const { tab, setTab, theme } = useStore();
   const items: { k: Tab; label: string }[] = [
-    { k: "home", label: "首页" },
-    { k: "search", label: "搜索" },
-    { k: "category", label: "分类" },
-    { k: "profile", label: "我的" },
+    { k: "home", label: "Home" },
+    { k: "search", label: "Search" },
+    { k: "category", label: "Categories" },
+    { k: "profile", label: "Profile" },
   ];
   /* 细瘦纯文字分栏：只有选中项高亮，没有指示点。
-     首页是沉浸视频 → 底栏压深色；搜索/分类/我的 是浅色内容页 →
+     Home是沉浸视频 → 底栏压深色；Search/Categories/Profile 是浅色内容页 →
      浅色主题下底栏跟着换成浅色，深色主题保持深色。 */
   const overVideo = tab === "home";
   const lightBar = !overVideo && theme === "light";
@@ -235,13 +235,13 @@ export default function App() {
   }, [tab, stack, loginOpen]);
 
   /* —— 安卓硬件返回键 ——
-     层级：全屏 → 面板/弹层 → 登录框 → 页面栈 → 回首页 → 退出应用。
-     不注册这个监听，Tauri 会直接 webView.goBack() 或退出，表现就是「任意页面返回都回桌面」。 */
+     层级：Full screen → 面板/弹层 → Sign in框 → 页面栈 → 回Home → 退出应用。
+     不Register这个监听，Tauri 会直接 webView.goBack() 或退出，表现就是「任意页面Back都回桌面」。 */
   const backRef = useRef<() => void>(() => {});
   backRef.current = () => {
-    if (fs) { setFs(false); return; }                        // 沉浸全屏
+    if (fs) { setFs(false); return; }                        // 沉浸Full screen
     if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); return; }
-    if (runBack()) return;                                  // 播放器的选集/评论/图文面板
+    if (runBack()) return;                                  // Play器的Episodes/Comments/图文面板
     if (loginOpen) { setLoginOpen(false); return; }
     if (stack.length) { pop(); return; }
     if (tab !== "home") { setTab("home"); return; }
@@ -254,7 +254,7 @@ export default function App() {
     let handle: { unregister: () => Promise<void> } | null = null;
     addPluginListener("app", "back-button", () => backRef.current())
       .then((l) => { if (disposed) l.unregister().catch(() => {}); else handle = l; })
-      .catch(() => { /* 非安卓宿主忽略 */ });
+      .catch(() => { /* 非安卓宿主Ignore */ });
     return () => {
       disposed = true;
       handle?.unregister().catch(() => {});
