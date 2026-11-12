@@ -24,6 +24,7 @@ type Props = {
   poster?: string;
   autoPlay?: boolean;
   active?: boolean;
+  vietnamese?: boolean;
   diagnosticContext?: Record<string, unknown>;
   muted?: boolean;
   loop?: boolean;
@@ -50,7 +51,7 @@ type Props = {
 
 /** 只负责「播」：hls.js + video 元素，控制条由外层渲染。 */
 const VideoSurface = forwardRef<VideoHandle, Props>(function VideoSurface(
-  { src, poster, autoPlay = true, active = true, diagnosticContext = {}, muted = false, loop = false, fit = "contain",
+  { src, poster, autoPlay = true, active = true, vietnamese = false, diagnosticContext = {}, muted = false, loop = false, fit = "contain",
     scale = 1, panX = 0, panY = 0, isGesturing = false,
     volume = 1, rate = 1,
     onTime, onDuration, onSize, onPlaying, onPause, onWaiting, onEnded, onError, onClick, className = "" },
@@ -62,7 +63,6 @@ const VideoSurface = forwardRef<VideoHandle, Props>(function VideoSurface(
   const recoverTimerRef = useRef<number | null>(null);
   const lastSizeRef = useRef({ w: 0, h: 0 });
   const [ready, setReady] = useState(false);
-  const [vietnamese, setVietnamese] = useState(() => localStorage.getItem("hg-vietnamese-subtitles") === "on");
   const [subtitle, setSubtitle] = useState("");
   const [subtitleError, setSubtitleError] = useState("");
   const translations = useRef(new Map<string, string>());
@@ -458,23 +458,10 @@ const VideoSurface = forwardRef<VideoHandle, Props>(function VideoSurface(
           }
         }}
       />
-      {platform === "ios" && active && (
-        <>
-          <button type="button" aria-pressed={vietnamese}
-            className="absolute z-20 left-3 top-[max(3rem,env(safe-area-inset-top))] rounded bg-black/75 px-2 py-1 text-xs text-white"
-            onPointerDown={(event) => event.stopPropagation()}
-            onPointerUp={(event) => event.stopPropagation()}
-            onClick={(event) => {
-              event.stopPropagation();
-              localStorage.setItem("hg-vietnamese-subtitles", vietnamese ? "off" : "on");
-              setVietnamese(!vietnamese);
-            }}>Phụ đề Việt</button>
-          {vietnamese && (subtitle || subtitleError) && (
-            <div className="pointer-events-none absolute inset-x-8 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-20 text-center text-sm text-white">
-              <span className="bg-black/85 px-2 py-1">{subtitleError || subtitle}</span>
-            </div>
-          )}
-        </>
+      {platform === "ios" && active && vietnamese && (subtitle || subtitleError) && (
+        <div className="pointer-events-none absolute inset-x-8 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-20 text-center text-sm text-white">
+          <span className="bg-black/85 px-2 py-1">{subtitleError || subtitle}</span>
+        </div>
       )}
     </div>
   );

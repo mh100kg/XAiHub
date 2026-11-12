@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { api, cover, fmt, fmtTime, isMobile } from "../api";
+import { api, cover, fmt, fmtTime, isMobile, platform } from "../api";
 import type { Detail, Episode, Post, VideoCard } from "../types";
 import { useStore } from "../store";
 import { Avatar, Img, Sheet } from "./ui";
@@ -49,6 +49,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
   const [buffered, setBuffered] = useState(0);
   const [paused, setPaused] = useState(false);
   const [controlsLocked, setControlsLocked] = useState(false);
+  const [vietnamese, setVietnamese] = useState(() => localStorage.getItem("hg-vietnamese-subtitles") === "on");
   const [rate, setRate] = useState(1);
   const [waiting, setWaiting] = useState(false);
   const [err, setErr] = useState("");
@@ -827,6 +828,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                       poster={fs ? undefined : posterUrl}
                       autoPlay
                       active={active}
+                      vietnamese={vietnamese}
                       diagnosticContext={{ active, view: mode, kind, video_id: curId, episode: curEp }}
                       muted={muted}
                       volume={volume}
@@ -847,6 +849,18 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                       onError={(m) => setErr(m)}
                     />
                   </div>
+                  {platform === "ios" && active && !clean && !controlsLocked && (
+                    <button
+                      type="button"
+                      aria-pressed={vietnamese}
+                      className="absolute bottom-[calc(7rem+env(safe-area-inset-bottom))] right-3 z-40 min-h-11 rounded-full bg-black/80 px-3 text-xs text-white"
+                      onClick={() => {
+                        const next = !vietnamese;
+                        setVietnamese(next);
+                        localStorage.setItem("hg-vietnamese-subtitles", next ? "on" : "off");
+                      }}
+                    >Phụ đề Việt: {vietnamese ? "Bật" : "Tắt"}</button>
+                  )}
 
                   {/* 横拖定位浮层 */}
                   {!isDesktop && scrub && (
