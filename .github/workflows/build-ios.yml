@@ -60,3 +60,4 @@ jobs:
           name: XAiHub-1.3.0-iOS-IPA
           path: artifacts/*
           if-no-files-found: error
+# Builds the localized HGhubX 1.3.0 iOS branch.
