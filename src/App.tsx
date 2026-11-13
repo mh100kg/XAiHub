@@ -29,10 +29,10 @@ function TabBar() {
   const { tab, setTab, theme, platform } = useStore();
   const android = platform === "android";
   const items: { k: Tab; label: string; On: (p: { size?: number; className?: string; style?: React.CSSProperties; strokeWidth?: number }) => React.JSX.Element; Off: (p: { size?: number; className?: string; style?: React.CSSProperties; strokeWidth?: number }) => React.JSX.Element }[] = [
-    { k: "home", label: "首页", On: IHomeF, Off: IHome },
-    { k: "search", label: "搜索", On: ISearch, Off: ISearch },
-    { k: "category", label: "分类", On: IGridF, Off: IGrid },
-    { k: "profile", label: "我的", On: IUserF, Off: IUser },
+    { k: "home", label: "Home", On: IHomeF, Off: IHome },
+    { k: "search", label: "Search", On: ISearch, Off: ISearch },
+    { k: "category", label: "Categories", On: IGridF, Off: IGrid },
+    { k: "profile", label: "Profile", On: IUserF, Off: IUser },
   ];
   const idx = items.findIndex((i) => i.k === tab);
   const overVideo = tab === "home";
