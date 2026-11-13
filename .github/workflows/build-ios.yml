@@ -3,7 +3,7 @@ name: Build iOS IPA
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "ios-english-double-tap"]
+    branches: ["main", "ios-english-double-tap", "update-hghubx-1.3.0"]
     tags: ["v*"]
 
 jobs:
