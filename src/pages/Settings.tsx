@@ -31,9 +31,9 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
     try {
       const info = await api.checkUpdate();
       if (info.has_update) setUpdate(info);
-      else toast(`已是最新版本 v${info.current}`, "ok");
+      else toast(`You have the latest version v${info.current}`, "ok");
     } catch (e) {
-      toast((e as Error).message || "检查更新失败", "info");
+      toast((e as Error).message || "Update check failed", "info");
     } finally {
       setChecking(false);
     }
@@ -69,14 +69,14 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
       <div className="shrink-0 relative overflow-hidden bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(90% 120% at 100% 0%, var(--p-pc) 0%, transparent 60%)", opacity: 0.32 }} />
         <div className="relative px-3 pt-2 pb-4">
-          <button onClick={onBack} aria-label="返回" className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
+          <button onClick={onBack} aria-label="Back" className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
           <div className="px-2 mt-1 flex items-end justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center"><ISettings size={20} strokeWidth={1.7} /></span>
-                <span className="text-[24px] font-bold tracking-wide text-on">设置</span>
+                <span className="text-[24px] font-bold tracking-wide text-on">Settings</span>
               </div>
-              <div className="text-[11px] text-mut mt-1">外观 · 播放 · 本地数据 · 诊断</div>
+              <div className="text-[11px] text-mut mt-1">Appearance · Play · Local data · Diagnostics</div>
             </div>
           </div>
         </div>
@@ -156,10 +156,10 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
                 disabled={!strictSecurityReady || securityPending}
                 onChange={(on) => {
                   void setStrictSecurity(on).then(() => {
-                    toast(on ? "已开启严格安全模式" : "已切换为兼容模式（关闭激进清洗与守卫）", "info");
-                  }).catch(() => toast("安全设置保存失败，已保持原模式", "info"));
+                    toast(on ? "Strict security mode enabled" : "Compatibility mode enabled", "info");
+                  }).catch(() => toast("Could not save security settings. The previous mode is still active.", "info"));
                 }}
-                label="严格安全模式"
+                label="Strict security mode"
               />
             </div>
             {/* 打不开时先点这里：把 DNS / 代理 / HTTP 结果复制给维护者 */}
@@ -337,7 +337,7 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <Modal open={!!update?.has_update} onClose={() => setUpdate(null)} width={392}>
         <div className="p-5">
-          <div className="text-[15px] font-bold text-on">发现新版本</div>
+          <div className="text-[15px] font-bold text-on">Update available</div>
           <p className="text-[11.5px] text-mut mt-1.5">
             v{update?.current} → <b className="text-on">v{update?.latest}</b>
             {update?.published_at ? ` · ${update.published_at.slice(0, 10)}` : ""}

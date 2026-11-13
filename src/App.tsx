@@ -316,7 +316,7 @@ export default function App() {
     let handle: { unregister: () => Promise<void> } | null = null;
     addPluginListener("app", "back-button", () => backRef.current())
       .then((l) => { if (disposed) l.unregister().catch(() => {}); else handle = l; })
-      .catch(() => { /* 非安卓宿主忽略 */ });
+      .catch(() => { /* 非安卓宿主Ignore */ });
     return () => {
       disposed = true;
       handle?.unregister().catch(() => {});

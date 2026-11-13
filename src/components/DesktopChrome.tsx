@@ -67,17 +67,17 @@ export function DesktopRail({ collapsed }: { collapsed: boolean }) {
     top?.kind === "settings" ? "settings" : top?.kind === "ranks" ? "ranks" : null;
   const onTab = (key: Tab | "search") => !railPage && tab === key;
   const items: { key: Tab; label: string; Icon: typeof IHome; Filled: typeof IHomeF }[] = [
-    { key: "home", label: "首页", Icon: IHome, Filled: IHomeF },
-    { key: "category", label: "分类", Icon: IGrid, Filled: IGridF },
-    { key: "profile", label: "我的", Icon: IUser, Filled: IUserF },
+    { key: "home", label: "Home", Icon: IHome, Filled: IHomeF },
+    { key: "category", label: "Categories", Icon: IGrid, Filled: IGridF },
+    { key: "profile", label: "Profile", Icon: IUser, Filled: IUserF },
   ];
   return (
-    <nav className={`win-sidebar ${collapsed ? "is-compact" : ""}`} aria-label="主导航">
+    <nav className={`win-sidebar ${collapsed ? "is-compact" : ""}`} aria-label="Main navigation">
       <div className="win-sidebar-inner">
         <button className={`win-search-launch ${onTab("search") ? "is-selected" : ""}`}
-          onClick={() => setTab("search")} aria-label="搜索">
+          onClick={() => setTab("search")} aria-label="Search">
           <ISearch size={19} strokeWidth={1.7} />
-          <span className="win-nav-copy">搜索你感兴趣的</span>
+          <span className="win-nav-copy">Search for something you like</span>
           <kbd className="win-nav-key">/</kbd>
         </button>
         <div className="win-nav-items">

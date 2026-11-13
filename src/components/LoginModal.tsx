@@ -15,7 +15,7 @@ export default function LoginModal() {
   const [err, setErr] = useState("");
 
   const submit = async () => {
-    if (!username.trim() || !password) { setErr("请输入账号与密码"); return; }
+    if (!username.trim() || !password) { setErr("Enter your username and password"); return; }
     setBusy(true);
     setErr("");
     try {
@@ -25,9 +25,9 @@ export default function LoginModal() {
       setUser(res.user as User);
       setPassword("");
       setLoginOpen(false);
-      toast(mode === "login" ? `欢迎回来，${(res.user as User)?.nickname || username}` : "注册成功", "ok");
+      toast(mode === "login" ? `Welcome back，${(res.user as User)?.nickname || username}` : "Registration successful", "ok");
     } catch (e) {
-      setErr((e as Error).message || "操作失败");
+      setErr((e as Error).message || "Operation failed");
     } finally {
       setBusy(false);
     }

@@ -142,8 +142,8 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
             {searchHist.length > 0 && (
               <div className="mt-1 a-rise">
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-bold text-on">搜索历史</span>
-                  <button onClick={clearSearchHist} className="text-[11px] text-dim pressable">清空</button>
+                  <span className="text-[13px] font-bold text-on">Search history</span>
+                  <button onClick={clearSearchHist} className="text-[11px] text-dim pressable">Clear</button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2.5">
                   {searchHist.map((h) => (
@@ -155,8 +155,8 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
 
             <div className="mt-5 rounded-(--r-md) bg-s2 p-3.5 a-rise">
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-[13px] font-semibold text-on/90"><IFireF size={15} className="text-primary" />热门题材</span>
-                <button onClick={() => push({ kind: "ranks" })} className="text-[11px] text-primary font-semibold pressable">完整榜单 ›</button>
+                <span className="flex items-center gap-1.5 text-[13px] font-semibold text-on/90"><IFireF size={15} className="text-primary" />Popular genres</span>
+                <button onClick={() => push({ kind: "ranks" })} className="text-[11px] text-primary font-semibold pressable">Full rankings ›</button>
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
                 {HOT_TAGS.map((t) => (
@@ -229,9 +229,9 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
 
 /* ================= 排行榜 ================= */
 const RANK_TABS = [
-  { k: "hot", label: "热播榜", desc: "按热力指数排序" },
-  { k: "recommend", label: "推荐榜", desc: "按推荐值排序" },
-  { k: "potential", label: "潜力榜", desc: "按潜力值排序" },
+  { k: "hot", label: "Trending", desc: "Sort by popularity" },
+  { k: "recommend", label: "Recommended", desc: "Sort by recommendations" },
+  { k: "potential", label: "Rising", desc: "Sort by growth" },
 ] as const;
 
 export function RankPage({ onBack, wide }: { onBack: () => void; wide: boolean }) {
@@ -245,7 +245,7 @@ export function RankPage({ onBack, wide }: { onBack: () => void; wide: boolean }
     setLoading(true);
     api.rank(tab)
       .then((res) => { if (alive) setItems(res?.items || []); })
-      .catch((e) => { if (alive) { setItems([]); toast((e as Error).message || "榜单加载失败", "info"); } })
+      .catch((e) => { if (alive) { setItems([]); toast((e as Error).message || "Could not load rankings", "info"); } })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [tab, toast]);
@@ -263,9 +263,9 @@ export function RankPage({ onBack, wide }: { onBack: () => void; wide: boolean }
             <div>
               <div className="flex items-center gap-2">
                 <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center"><ITrophy size={20} /></span>
-                <span className="text-[24px] font-bold tracking-wide text-on">HG 热榜</span>
+                <span className="text-[24px] font-bold tracking-wide text-on">HG Trending</span>
               </div>
-              <div className="text-[11px] text-mut mt-1">{meta.desc} · 每 10 分钟更新</div>
+              <div className="text-[11px] text-mut mt-1">{meta.desc} · Updated every 10 minutes</div>
             </div>
           </div>
           <div className="flex bg-s3 rounded-(--r-ctl) p-1 mt-3">
@@ -283,10 +283,10 @@ export function RankPage({ onBack, wide }: { onBack: () => void; wide: boolean }
         ) : items.length ? (
           items.map((it) => (
             <RankRow key={`${it.video_id}-${it.rank}`} item={it} metricMax={max}
-              onOpen={() => push({ kind: "feed", videoIds: items.map((x) => x.video_id), index: items.findIndex((x) => x.video_id === it.video_id), title: "HG 热榜" })} />
+              onOpen={() => push({ kind: "feed", videoIds: items.map((x) => x.video_id), index: items.findIndex((x) => x.video_id === it.video_id), title: "HG Trending" })} />
           ))
         ) : (
-          <Empty icon={<ITrophy size={26} />} title="榜单暂时为空" sub="稍后再来看看，或者去首页刷刷推荐" />
+          <Empty icon={<ITrophy size={26} />} title="Rankings are empty" sub="Check back later or browse recommendations on Home" />
         )}
         {wide && <div className="h-2" />}
       </div>

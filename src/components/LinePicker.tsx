@@ -24,10 +24,10 @@ function Row({ item, current, probe, busy, disabled, onPick, onProbe }: {
       <span
         title={probe ? (probe.error || (probe.status ? `HTTP ${probe.status}` : "")) : ""}
         className={`text-[10.5px] tabular-nums shrink-0 ${probe ? (probe.ok ? "text-mint" : "text-danger") : "text-dim"}`}>
-        {busy ? "…" : probe ? (probe.ok ? `${probe.ms}ms` : probe.status ? `HTTP ${probe.status}` : "失败") : "—"}
+        {busy ? "…" : probe ? (probe.ok ? `${probe.ms}ms` : probe.status ? `HTTP ${probe.status}` : "Failed") : "—"}
       </span>
       <button onClick={() => onProbe(item.url)} disabled={busy || disabled}
-        className="shrink-0 h-7 px-2.5 rounded-(--r-sm) bg-s4 text-[11px] text-on/80 pressable disabled:opacity-50">检测</button>
+        className="shrink-0 h-7 px-2.5 rounded-(--r-sm) bg-s4 text-[11px] text-on/80 pressable disabled:opacity-50">Test</button>
     </div>
   );
 }
@@ -55,7 +55,7 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
   const [switching, setSwitching] = useState("");
 
   const readState = () => {
-    api.lineState().then(setState).catch((e) => toast((e as Error).message || "读取线路失败", "info"));
+    api.lineState().then(setState).catch((e) => toast((e as Error).message || "Could not load servers", "info"));
   };
 
   const readMirrors = async () => {
@@ -92,7 +92,7 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
         return next;
       });
     } catch (e) {
-      toast((e as Error).message || "检测失败", "info");
+      toast((e as Error).message || "Test failed", "info");
     } finally {
       setProbing("");
     }

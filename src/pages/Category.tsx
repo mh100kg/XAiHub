@@ -81,8 +81,8 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 px-4 pb-1" style={{ paddingTop: "calc(var(--sat, 0px) + 14px)" }}>
         <div className="flex items-end gap-2.5">
-          <span className="text-[24px] font-bold text-on leading-none">分类</span>
-          <span className="text-[11px] text-mut pb-0.5">{CHANNELS.length + 1} 个频道 · 每周持续上新</span>
+          <span className="text-[24px] font-bold text-on leading-none">Categories</span>
+          <span className="text-[11px] text-mut pb-0.5">{CHANNELS.length + 1} channels · New releases every week</span>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
                   <span className="block text-[10.5px] text-mut mt-0.5 truncate">{c.desc}</span>
                 </span>
                 <span className="flex items-center gap-0.5 text-[11.5px] text-mut group-hover:text-primary transition-colors">
-                  全部<IChevR size={14} />
+                  All<IChevR size={14} />
                 </span>
               </button>
               <div className="scroll-x flex gap-2.5 px-4 snap-x">

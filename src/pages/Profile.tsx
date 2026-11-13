@@ -33,9 +33,9 @@ export default function Profile({ wide }: { wide: boolean }) {
   return (
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 px-4 pb-2 flex items-center" style={{ paddingTop: "calc(var(--sat, 0px) + 14px)" }}>
-        <div className="text-[24px] font-bold text-on leading-none">我的</div>
+        <div className="text-[24px] font-bold text-on leading-none">Profile</div>
         {isMobile && (
-          <button onClick={() => push({ kind: "settings" })} aria-label="设置"
+          <button onClick={() => push({ kind: "settings" })} aria-label="Settings"
             className="ml-auto w-9 h-9 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
             <ISettings size={17} strokeWidth={1.7} />
           </button>
@@ -51,13 +51,13 @@ export default function Profile({ wide }: { wide: boolean }) {
               <div className="text-[16px] font-bold text-on truncate">{user.nickname}</div>
               <div className="text-[11px] text-mut mt-0.5">@{user.username} · ID {user.id}</div>
               <div className="flex gap-3 mt-2 text-[10.5px] text-mut">
-                <span>点赞 <b className="text-on">{fmt(user.counts?.like)}</b></span>
-                <span>收藏 <b className="text-on">{fmt(user.counts?.collect)}</b></span>
-                <span>关注 <b className="text-on">{fmt(user.counts?.following)}</b></span>
+                <span>Like <b className="text-on">{fmt(user.counts?.like)}</b></span>
+                <span>Favorite <b className="text-on">{fmt(user.counts?.collect)}</b></span>
+                <span>Follow <b className="text-on">{fmt(user.counts?.following)}</b></span>
               </div>
             </div>
             <button onClick={async () => { await logout(); }}
-              className="w-9 h-9 rounded-full bg-s3 flex items-center justify-center text-mut pressable" aria-label="退出登录">
+              className="w-9 h-9 rounded-full bg-s3 flex items-center justify-center text-mut pressable" aria-label="Sign out">
               <ILogout size={17} />
             </button>
           </div>
@@ -122,14 +122,14 @@ export default function Profile({ wide }: { wide: boolean }) {
                 return (
                 <button key={c.id} onClick={() => push({
                   kind: "feed", videoIds: cards.map((x) => x.id), index: cards.findIndex((x) => x.id === c.id),
-                  title: tab === "fav" ? "我的收藏" : "观看历史",
+                  title: tab === "fav" ? "My favorites" : "Watch history",
                   startEp: p?.ep, startTime: p?.t,
                 })}
                   className="relative rounded-(--r-sm) overflow-hidden bg-s1 elev-1 pressable" style={{ paddingTop: "133%" }}>
                   <Img src={c.cover} />
                   {!!p && (
                     <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full bg-black/65 text-[9.5px] text-white/90 leading-none">
-                      第 {p.ep} 集{p.t > 3 ? ` · ${fmtTime(p.t)}` : ""}
+                      Episode {p.ep}{p.t > 3 ? ` · ${fmtTime(p.t)}` : ""}
                     </div>
                   )}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-1.5">
