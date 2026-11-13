@@ -603,18 +603,25 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
         if (swipeEp) { go(dir); return; }
       }
     }
-    if (!cancelled && g.mode === "idle" && Date.now() - g.t < 260) {
-      // 双击 = 暂停/播放；单击 = 净屏/还原（延迟 230ms 等第二击）
+    if (!cancelled && e && g.mode === "idle" && Date.now() - g.t < 260) {
+      // Double tap left/right seeks 5 seconds; single tap toggles the clean player view.
       if (lastTapRef.current.timer) {
         window.clearTimeout(lastTapRef.current.timer);
         lastTapRef.current.timer = null;
-        videoRef.current?.toggle();
+        const video = videoRef.current?.el();
+        if (video && Number.isFinite(video.duration) && video.duration > 0) {
+          const bounds = e.currentTarget.getBoundingClientRect();
+          const offset = e.clientX < bounds.left + bounds.width / 2 ? -5 : 5;
+          const target = Math.max(0, Math.min(video.duration - 0.15, video.currentTime + offset));
+          setTime(target);
+          videoRef.current?.seek(target, "double_tap");
+        }
       } else {
         lastTapRef.current.timer = window.setTimeout(() => {
           lastTapRef.current.timer = null;
           setClean((v) => !v);
           if (!isDesktop && fs) setIdle((v) => !v);
-        }, 230) as unknown as number;
+        }, 280) as unknown as number;
       }
     }
   };
