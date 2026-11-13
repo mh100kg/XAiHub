@@ -23,7 +23,7 @@ export function TopicsPage({ onBack, wide }: { onBack: () => void; wide: boolean
     setErr("");
     api.topics()
       .then((r) => setItems(r?.items || []))
-      .catch((e) => { setErr((e as Error).message || "加载失败"); toast((e as Error).message || "加载失败", "info"); })
+      .catch((e) => { setErr((e as Error).message || "Could not load"); toast((e as Error).message || "Could not load", "info"); })
       .finally(() => setLoading(false));
   }, [toast]);
 
@@ -34,9 +34,9 @@ export function TopicsPage({ onBack, wide }: { onBack: () => void; wide: boolean
       <div className="shrink-0 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <div className="px-3 pt-2 pb-3 flex items-center gap-2.5">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
-          <span className="text-[17px] font-bold text-on">专题</span>
+          <span className="text-[17px] font-bold text-on">Collections</span>
           <span className="text-[10.5px] text-mut">{items.length} 个专辑</span>
-          <button onClick={() => setSearching(true)} aria-label="搜索短剧" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <button onClick={() => setSearching(true)} aria-label="Search short dramas" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
           <button onClick={load} className="w-9 h-9 rounded-full flex items-center justify-center text-mut hover:bg-s3 pressable"><IRefresh size={16} /></button>
         </div>
       </div>
@@ -45,7 +45,7 @@ export function TopicsPage({ onBack, wide }: { onBack: () => void; wide: boolean
         {loading ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : err && !items.length ? (
-          <Empty icon={<TopicIcon size={26} />} title="专题加载失败" sub={err} action="重试" onAction={load} />
+          <Empty icon={<TopicIcon size={26} />} title="Could not load collections" sub={err} action="Retry" onAction={load} />
         ) : items.length ? (
           <div className="grid grid-cols-2 gap-3">
             {items.map((t) => (
@@ -66,11 +66,11 @@ export function TopicsPage({ onBack, wide }: { onBack: () => void; wide: boolean
             ))}
           </div>
         ) : (
-          <Empty icon={<TopicIcon size={26} />} title="暂无专题" />
+          <Empty icon={<TopicIcon size={26} />} title="No collections" />
         )}
         {wide && <div className="h-2" />}
       </div>
-      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: "搜索 · 专题" })} />}
+      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: "Search · Collections" })} />}
     </div>
   );
 }
@@ -106,8 +106,8 @@ export function TopicPage({ slug, name, onBack, wide }: { slug: string; name: st
       setPages(pag?.pages || 1);
       setErr("");
     } catch (e) {
-      setErr((e as Error).message || "加载失败");
-      toast((e as Error).message || "加载失败", "info");
+      setErr((e as Error).message || "Could not load");
+      toast((e as Error).message || "Could not load", "info");
     } finally {
       busy.current = false;
       setLoading(false);
@@ -125,7 +125,7 @@ export function TopicPage({ slug, name, onBack, wide }: { slug: string; name: st
             <div className="text-[16px] font-bold text-on truncate">{topic?.title || name}</div>
             <div className="text-[10.5px] text-mut">{topic?.video_count ?? 0} 部 · {videos.length} 已加载</div>
           </div>
-          <button onClick={() => setSearching(true)} aria-label="搜索短剧" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <button onClick={() => setSearching(true)} aria-label="Search short dramas" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
         </div>
         {topic?.intro && <div className="px-4 pb-3 text-[11.5px] text-mut leading-relaxed clamp-3">{topic.intro}</div>}
       </div>
@@ -152,15 +152,15 @@ export function TopicPage({ slug, name, onBack, wide }: { slug: string; name: st
         {loading && !videos.length ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : err && !videos.length ? (
-          <Empty icon={<TopicIcon size={26} />} title="加载失败" sub={err} action="重试" onAction={loadMore} />
+          <Empty icon={<TopicIcon size={26} />} title="Could not load" sub={err} action="Retry" onAction={loadMore} />
         ) : videos.length ? (
           <Masonry videos={videos} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: videos.map((x) => x.id), index: videos.findIndex((x) => x.id === v.id), title: topic?.title || name })} />
         ) : (
-          <Empty icon={<TopicIcon size={26} />} title="暂无内容" />
+          <Empty icon={<TopicIcon size={26} />} title="No content" />
         )}
         <div ref={sentinel} className="h-8" />
         {loading && videos.length > 0 && <div className="flex justify-center py-3"><div className="w-6 h-6 spinner" /></div>}
-        {!loading && videos.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— 已经到底啦 —</div>}
+        {!loading && videos.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— You have reached the end —</div>}
         {wide && <div className="h-2" />}
       </div>
       {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: topic?.title || name })} />}
@@ -181,7 +181,7 @@ export function TagsPage({ onBack, wide }: { onBack: () => void; wide: boolean }
     setErr("");
     api.tags()
       .then((r) => setGroups(r?.categories || []))
-      .catch((e) => { setErr((e as Error).message || "加载失败"); toast((e as Error).message || "加载失败", "info"); })
+      .catch((e) => { setErr((e as Error).message || "Could not load"); toast((e as Error).message || "Could not load", "info"); })
       .finally(() => setLoading(false));
   }, [toast]);
 
@@ -192,8 +192,8 @@ export function TagsPage({ onBack, wide }: { onBack: () => void; wide: boolean }
       <div className="shrink-0 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <div className="px-3 pt-2 pb-3 flex items-center gap-2.5">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
-          <span className="text-[17px] font-bold text-on">标签</span>
-          <button onClick={() => setSearching(true)} aria-label="搜索短剧" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <span className="text-[17px] font-bold text-on">Genres</span>
+          <button onClick={() => setSearching(true)} aria-label="Search short dramas" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
           <button onClick={load} className="w-9 h-9 rounded-full flex items-center justify-center text-mut hover:bg-s3 pressable"><IRefresh size={16} /></button>
         </div>
       </div>
@@ -202,7 +202,7 @@ export function TagsPage({ onBack, wide }: { onBack: () => void; wide: boolean }
         {loading ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : err && !groups.length ? (
-          <Empty icon={<TopicIcon size={26} />} title="标签加载失败" sub={err} action="重试" onAction={load} />
+          <Empty icon={<TopicIcon size={26} />} title="Could not load genres" sub={err} action="Retry" onAction={load} />
         ) : groups.length ? (
           groups.map((g) => (
             <section key={g.name} className="mb-5 a-rise">
@@ -222,11 +222,11 @@ export function TagsPage({ onBack, wide }: { onBack: () => void; wide: boolean }
             </section>
           ))
         ) : (
-          <Empty icon={<TopicIcon size={26} />} title="暂无标签" />
+          <Empty icon={<TopicIcon size={26} />} title="No genres" />
         )}
         {wide && <div className="h-2" />}
       </div>
-      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: "搜索 · 标签" })} />}
+      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: "Search · Genres" })} />}
     </div>
   );
 }
@@ -258,8 +258,8 @@ export function TagPage({ tag, name, onBack, wide }: { tag: string; name: string
       setPages(res?.pagination?.pages || next);
       setErr("");
     } catch (e) {
-      setErr((e as Error).message || "加载失败");
-      toast((e as Error).message || "加载失败", "info");
+      setErr((e as Error).message || "Could not load");
+      toast((e as Error).message || "Could not load", "info");
     } finally {
       busy.current = false;
       setLoading(false);
@@ -284,7 +284,7 @@ export function TagPage({ tag, name, onBack, wide }: { tag: string; name: string
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
           <span className="text-[16px] font-bold text-on">{name}</span>
           <span className="text-[10.5px] text-mut">{items.length} 部</span>
-          <button onClick={() => setSearching(true)} aria-label="搜索短剧" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <button onClick={() => setSearching(true)} aria-label="Search short dramas" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
         </div>
       </div>
 
@@ -292,15 +292,15 @@ export function TagPage({ tag, name, onBack, wide }: { tag: string; name: string
         {loading && !items.length ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : err && !items.length ? (
-          <Empty icon={<TopicIcon size={26} />} title="加载失败" sub={err} action="重试" onAction={loadMore} />
+          <Empty icon={<TopicIcon size={26} />} title="Could not load" sub={err} action="Retry" onAction={loadMore} />
         ) : items.length ? (
           <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: name })} />
         ) : (
-          <Empty icon={<TopicIcon size={26} />} title="该标签下暂无内容" />
+          <Empty icon={<TopicIcon size={26} />} title="No titles in this genre" />
         )}
         <div ref={sentinel} className="h-8" />
         {loading && items.length > 0 && <div className="flex justify-center py-3"><div className="w-6 h-6 spinner" /></div>}
-        {!loading && items.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— 已经到底啦 —</div>}
+        {!loading && items.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— You have reached the end —</div>}
         {wide && <div className="h-2" />}
       </div>
       {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: name })} />}

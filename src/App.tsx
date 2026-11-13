@@ -41,7 +41,7 @@ function TabBar() {
   const dropLeft = `${12.5 + idx * 25}%`;
   return (
     <nav className="hg-tabbar absolute inset-x-0 bottom-0 z-30 flex justify-center"
-      style={{ paddingBottom: android ? "var(--sab, 0px)" : "calc(var(--sab, 0px) * 0.55)" }} aria-label="主导航">
+      style={{ paddingBottom: android ? "var(--sab, 0px)" : "calc(var(--sab, 0px) * 0.55)" }} aria-label="Main navigation">
       <div className="hg-glass relative" style={{
         width: "min(92vw, 420px)",
         height: 56,

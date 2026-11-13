@@ -8,9 +8,9 @@ import { Empty, Img } from "../components/ui";
 import { IBack, IChevR, IGlobe, IGrid, ISearch, ITrophy } from "../icons";
 
 export const CHANNELS = [
-  { cate: "ai-duanju", name: "AI成人短剧", desc: "高能反转 · 一口气看完" },
-  { cate: "ai-manju", name: "AI成人漫剧", desc: "国创漫剧 · 每周更新" },
-  { cate: "original", name: "原创", desc: "原创 · 独家好剧" },
+  { cate: "ai-duanju", name: "AIAdult short dramas", desc: "Big twists · Binge-worthy" },
+  { cate: "ai-manju", name: "AIAdult animated dramas", desc: "Chinese animation · Updated weekly" },
+  { cate: "original", name: "Originals", desc: "Exclusive originals" },
 ] as const;
 
 /* ================= 分类总览 ================= */
@@ -52,7 +52,7 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
       }
     } catch (error) {
       const stale = requestEpoch !== lineEpochRef.current;
-      if (mounted.current && !stale) setErrors(m => ({ ...m, [key]: (error as Error).message || "加载失败" }));
+      if (mounted.current && !stale) setErrors(m => ({ ...m, [key]: (error as Error).message || "Could not load" }));
       /* 请求在旧线路上发出、期间线路已切换：等 finally 里用新线路补拉一次 */
       if (stale) retryKeys.current.add(key);
     } finally {
@@ -93,8 +93,8 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
             className="mx-4 mb-2.5 w-[calc(100%-2rem)] flex items-center gap-3 rounded-(--r-md) bg-s2 p-3.5 text-left pressable elev-1">
             <span className="w-10 h-10 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><ITrophy size={20} /></span>
             <span className="flex-1">
-              <span className="block text-[14.5px] font-semibold text-on">排行榜</span>
-              <span className="block text-[10.5px] text-mut mt-0.5">热播榜 · 推荐榜 · 潜力榜</span>
+              <span className="block text-[14.5px] font-semibold text-on">Rankings</span>
+              <span className="block text-[10.5px] text-mut mt-0.5">Trending · Recommended · Rising</span>
             </span>
             <IChevR size={16} className="text-mut" />
           </button>
@@ -106,8 +106,8 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
             className="flex items-center gap-2.5 rounded-(--r-md) bg-s2 p-3 text-left pressable elev-1">
             <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><IGrid size={18} /></span>
             <span className="flex-1">
-              <span className="block text-[13.5px] font-semibold text-on">专题</span>
-              <span className="block text-[10px] text-mut mt-0.5">精选专辑合集</span>
+              <span className="block text-[13.5px] font-semibold text-on">Collections</span>
+              <span className="block text-[10px] text-mut mt-0.5">Curated collections</span>
             </span>
             <IChevR size={14} className="text-mut" />
           </button>
@@ -115,8 +115,8 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
             className="flex items-center gap-2.5 rounded-(--r-md) bg-s2 p-3 text-left pressable elev-1">
             <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><IGlobe size={18} /></span>
             <span className="flex-1">
-              <span className="block text-[13.5px] font-semibold text-on">标签</span>
-              <span className="block text-[10px] text-mut mt-0.5">按题材找片</span>
+              <span className="block text-[13.5px] font-semibold text-on">Genres</span>
+              <span className="block text-[10px] text-mut mt-0.5">Browse by genre</span>
             </span>
             <IChevR size={14} className="text-mut" />
           </button>
@@ -150,15 +150,15 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
         })}
 
         {/* 吃瓜 */}
-        <section aria-label="吃瓜" className="mb-5 a-rise">
+        <section aria-label="Entertainment" className="mb-5 a-rise">
           <button onClick={() => push({ kind: "posts" })}
             className="w-full flex items-center gap-2.5 px-4 mb-2.5 text-left pressable group">
             <span className="w-[36px] h-[36px] rounded-(--r-sm) tonal flex items-center justify-center shrink-0 text-primary">
               <IGrid size={19} strokeWidth={1.9} />
             </span>
             <span className="flex-1 min-w-0">
-              <span className="block text-[15.5px] font-semibold text-on leading-tight">吃瓜</span>
-              <span className="block text-[10.5px] text-mut mt-0.5 truncate">圈内爆料 · 每日更新</span>
+              <span className="block text-[15.5px] font-semibold text-on leading-tight">Entertainment</span>
+              <span className="block text-[10.5px] text-mut mt-0.5 truncate">Entertainment news · Updated daily</span>
             </span>
             <span className="flex items-center gap-0.5 text-[11.5px] text-mut group-hover:text-primary transition-colors">
               全部<IChevR size={14} />
@@ -176,11 +176,11 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
                 <div className="mt-1.5 text-[11.5px] font-medium text-on clamp-1 leading-tight">{post.title}</div>
               </button>
             ))}
-            {!posts.length && <PreviewStatus name="吃瓜" loading={loading.posts !== false} error={errors.posts} onRetry={() => void loadPreview("posts")} />}
+            {!posts.length && <PreviewStatus name="Entertainment" loading={loading.posts !== false} error={errors.posts} onRetry={() => void loadPreview("posts")} />}
           </div>
         </section>
 
-        <div className="px-4 text-center text-[10.5px] text-dim pt-1">— 已展示全部频道 —</div>
+        <div className="px-4 text-center text-[10.5px] text-dim pt-1">— All channels shown —</div>
       </div>
       {wide && <div />}
     </div>
@@ -189,22 +189,22 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
 
 function PreviewStatus({ name, loading, error, onRetry }: { name: string; loading: boolean; error?: string; onRetry: () => void }) {
   return <div className="h-[150px] flex flex-col justify-center items-start gap-2 text-[11.5px] text-dim px-1">
-    <span>{loading ? "加载中…" : error || "暂无内容"}</span>
-    {!loading && error && <button aria-label={`重试${name}`} onClick={onRetry} className="text-primary pressable">重试</button>}
+    <span>{loading ? "Loading……" : error || "No content"}</span>
+    {!loading && error && <button aria-label={`Retry${name}`} onClick={onRetry} className="text-primary pressable">Retry</button>}
   </div>;
 }
 
 /* ================= 频道详情页 ================= */
 const CHANNEL_SORTS = [
-  { value: "latest", label: "最近更新" },
-  { value: "hot_window", label: "当前热播" },
-  { value: "random", label: "精选推荐" },
+  { value: "latest", label: "Recently updated" },
+  { value: "hot_window", label: "Trending" },
+  { value: "random", label: "Featured" },
 ] as const;
 
 const ORIGINAL_CATES = [
-  { value: "all", label: "全部原创" },
-  { value: "ai-manju", label: "原创漫剧" },
-  { value: "ai-duanju", label: "原创短剧" },
+  { value: "all", label: "All originals" },
+  { value: "ai-manju", label: "Original animated dramas" },
+  { value: "ai-duanju", label: "Original short dramas" },
 ] as const;
 
 const originalSort = (cate: (typeof ORIGINAL_CATES)[number]["value"]) =>
@@ -245,7 +245,7 @@ export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: 
       setPages(res?.pagination?.pages || next);
       setErr(null);
     } catch (e) {
-      if (seq === requestSeq.current) setErr((e as Error).message || "加载失败");
+      if (seq === requestSeq.current) setErr((e as Error).message || "Could not load");
     } finally {
       if (seq === requestSeq.current) {
         busy.current = false;
@@ -294,7 +294,7 @@ export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: 
             <div className="text-[17px] font-bold text-on leading-tight">{name}</div>
             <div className="text-[10.5px] text-mut">共 {items.length} 部 · 已加载 {page}/{Math.max(pages, 1)} 页</div>
           </div>
-          <button onClick={() => setSearching(true)} aria-label={cate === "original" ? "搜索原创" : "搜索短剧"} className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <button onClick={() => setSearching(true)} aria-label={cate === "original" ? "Search originals" : "Search short dramas"} className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
         </div>
         {cate === "original" && (
           <div className="px-4 pb-2 flex gap-2">
@@ -319,17 +319,17 @@ export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: 
         {items.length ? (
           <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: name })} />
         ) : err ? (
-          <Empty icon={<IGrid size={26} />} title="加载失败" sub={err} action="重试" onAction={() => void loadMore(true)} />
+          <Empty icon={<IGrid size={26} />} title="Could not load" sub={err} action="Retry" onAction={() => void loadMore(true)} />
         ) : (
           <div className="flex justify-center py-10"><div className="w-8 h-8 spinner" /></div>
         )}
         <div ref={sentinel} className="h-10" />
         {loading && <div className="flex justify-center py-3"><div className="w-6 h-6 spinner" /></div>}
         {!loading && page >= pages && items.length > 0 && (
-          <div className="text-center text-[10.5px] text-dim py-3">— 已经到底啦 —</div>
+          <div className="text-center text-[10.5px] text-dim py-3">— You have reached the end —</div>
         )}
       </div>
-      {searching && <InplaceSearch kind="video" scope={cate === "original" ? "original" : undefined} wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: `搜索 · ${name}` })} />}
+      {searching && <InplaceSearch kind="video" scope={cate === "original" ? "original" : undefined} wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: `Search · ${name}` })} />}
     </div>
   );
 }

@@ -66,11 +66,11 @@ export default function Profile({ wide }: { wide: boolean }) {
             className="w-full text-left rounded-(--r-lg) bg-s1 p-4 elev-1 flex items-center gap-3.5 pressable a-rise">
             <Avatar size={56} icon={<IUser size={26} />} hue={220} ring />
             <div className="flex-1 min-w-0">
-              <div className="text-[16px] font-bold text-on">未登录</div>
-              <div className="text-[11px] text-mut mt-0.5">登录后可同步点赞、收藏与评论</div>
+              <div className="text-[16px] font-bold text-on">Not signed in</div>
+              <div className="text-[11px] text-mut mt-0.5">Sign in to sync likes, favorites, and comments</div>
               <div className="flex gap-3 mt-2 text-[10.5px] text-mut">
-                <span>收藏 <b className="text-on">{favs.length}</b></span>
-                <span>观看 <b className="text-on">{history.length}</b></span>
+                <span>Favorites <b className="text-on">{favs.length}</b></span>
+                <span>Watched <b className="text-on">{history.length}</b></span>
               </div>
             </div>
             <span className="flex items-center gap-0.5 h-8 pl-3 pr-2 rounded-full bg-primary text-on-primary text-[11.5px] font-semibold">
@@ -86,7 +86,7 @@ export default function Profile({ wide }: { wide: boolean }) {
               className="flex items-center gap-2.5 rounded-(--r-md) bg-s2 p-3 text-left pressable elev-1">
               <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><IHeart size={18} /></span>
               <span className="flex-1">
-                <span className="block text-[13.5px] font-semibold text-on">我的关注</span>
+                <span className="block text-[13.5px] font-semibold text-on">Following</span>
                 <span className="block text-[10px] text-mut mt-0.5">关注作者的更新</span>
               </span>
               <IChevR size={14} className="text-mut" />
@@ -95,7 +95,7 @@ export default function Profile({ wide }: { wide: boolean }) {
               className="flex items-center gap-2.5 rounded-(--r-md) bg-s2 p-3 text-left pressable elev-1">
               <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><IUserF size={18} /></span>
               <span className="flex-1">
-                <span className="block text-[13.5px] font-semibold text-on">我的主页</span>
+                <span className="block text-[13.5px] font-semibold text-on">My profile</span>
                 <span className="block text-[10px] text-mut mt-0.5">我的作品与资料</span>
               </span>
               <IChevR size={14} className="text-mut" />
@@ -105,7 +105,7 @@ export default function Profile({ wide }: { wide: boolean }) {
 
         {/* 我的内容 */}
         <div className="flex bg-s3 rounded-(--r-ctl) p-1 mt-4">
-          {([["fav", "我的收藏"], ["history", "观看历史"]] as const).map(([k, l]) => (
+          {([["fav", "My favorites"], ["history", "Watch history"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)}
               className={`flex-1 h-8 rounded-(--r-ctl) text-[12px] font-semibold pressable ${tab === k ? "tonal text-on-sec" : "text-mut"}`}
               style={tab === k ? { background: "var(--p-sec)", color: "var(--p-primary)" } : undefined}>{l}</button>
@@ -141,12 +141,12 @@ export default function Profile({ wide }: { wide: boolean }) {
             </div>
           ) : (
             <Empty icon={tab === "fav" ? <IStar size={24} /> : <IClock size={24} />}
-              title={tab === "fav" ? "还没有收藏" : "还没有观看记录"}
+              title={tab === "fav" ? "No favorites yet" : "No watch history"}
               sub={tab === "fav" ? "在剧集页点收藏，之后就能在这里找到" : "看过的剧集会出现在这里"}
-              action="去逛逛" onAction={() => push({ kind: "ranks" })} />
+              action="Browse" onAction={() => push({ kind: "ranks" })} />
           )}
           {cards.length > 0 && tab === "history" && (
-            <button onClick={clearHistory} className="mt-3 w-full h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-mut pressable">清空观看历史</button>
+            <button onClick={clearHistory} className="mt-3 w-full h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-mut pressable">Clear watch history</button>
           )}
         </div>
 

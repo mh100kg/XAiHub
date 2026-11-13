@@ -163,15 +163,15 @@ export function ArticlePanel({ title, html, cover, hot, onClose }: {
   const safeHtml = useMemo(() => sanitizeHtml(html), [html, strictSecurity]);
   const openSafeLink = (url: string) => {
     api.openUrl(url).catch(() => {
-      copyText(url).then(() => toast("链接已复制", "ok")).catch(() => toast("复制失败", "info"));
+      copyText(url).then(() => toast("Link copied", "ok")).catch(() => toast("Copy failed", "info"));
     });
   };
   return (
     <div className="flex flex-col h-full">
       <div className="shrink-0 flex items-center gap-2 px-4 h-12">
-        <span className="text-[13.5px] font-bold text-on">图文详情</span>
+        <span className="text-[13.5px] font-bold text-on">Post details</span>
         {hot ? <span className="text-[10.5px] text-mut">{fmt(hot)} 热度</span> : null}
-        <button onClick={onClose} aria-label="关闭" className="ml-auto w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
+        <button onClick={onClose} aria-label="Close" className="ml-auto w-7 h-7 rounded-full bg-s3 flex items-center justify-center text-mut pressable">
           <IClose size={13} />
         </button>
       </div>

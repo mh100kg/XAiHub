@@ -66,7 +66,7 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
       setErr(null);
     } catch (e) {
       if (seq !== seqRef.current) return;
-      setErr((e as Error).message || "搜索失败");
+      setErr((e as Error).message || "Search failed");
     } finally {
       if (seq === seqRef.current) {
         busy.current = false;
@@ -107,11 +107,11 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
         <form className="flex-1 flex items-center gap-2 h-11 rounded-(--r-ctl) bg-s3 px-3.5 focus-within:bg-s4 transition-colors"
           onSubmit={(e) => { e.preventDefault(); submit(q); }}>
           <ISearch size={17} className="text-mut shrink-0" />
-          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="搜索短剧、帖子、题材…"
+          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search dramas, posts, and genres…"
             className="flex-1 min-w-0 bg-transparent text-[13.5px] text-on placeholder-dim outline-none" />
           {q && <button type="button" onClick={() => { seqRef.current++; busy.current = false; setLoading(false); setQ(""); setSubmitted(""); setItems([]); setPosts([]); }} className="w-5 h-5 rounded-full bg-s4 flex items-center justify-center text-mut pressable"><IClose size={11} /></button>}
         </form>
-        <button onClick={() => push({ kind: "ranks" })} aria-label="排行榜"
+        <button onClick={() => push({ kind: "ranks" })} aria-label="Rankings"
           className="w-11 h-11 rounded-(--r-sm) flex items-center justify-center bg-primary text-on-primary pressable elev-2">
           <ITrophy size={19} />
         </button>
@@ -123,8 +123,8 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
             {hotWords.length > 0 && (
               <div className="mt-1 rounded-(--r-md) bg-s2 p-3.5 a-rise">
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-[13px] font-semibold text-on/90"><IFireF size={15} className="text-primary" />热搜榜</span>
-                  <button onClick={refreshHot} className="flex items-center gap-1 text-[11px] text-mut pressable"><IRefresh size={12} />刷新</button>
+                  <span className="flex items-center gap-1.5 text-[13px] font-semibold text-on/90"><IFireF size={15} className="text-primary" />Trending searches</span>
+                  <button onClick={refreshHot} className="flex items-center gap-1 text-[11px] text-mut pressable"><IRefresh size={12} />Refresh</button>
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2 mt-3">
                   {hotWords.slice(0, 10).map((h, i) => (
@@ -167,9 +167,9 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
             </div>
 
             <div className="flex items-center justify-between mt-6 mb-2.5">
-              <span className="text-[13px] font-bold text-on">为你推荐</span>
+              <span className="text-[13px] font-bold text-on">Recommended for you</span>
               <button onClick={() => submit(HOT_TAGS[Math.floor(Math.random() * HOT_TAGS.length)])}
-                className="flex items-center gap-1 text-[11.5px] text-mut pressable"><IRefresh size={13} />换一批</button>
+                className="flex items-center gap-1 text-[11.5px] text-mut pressable"><IRefresh size={13} />Refresh suggestions</button>
             </div>
             <p className="text-[11.5px] text-dim leading-relaxed">
               输入关键词后按回车搜索，也可以点上面的题材直接看片单。
@@ -178,7 +178,7 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
         ) : (
           <>
             <div className="flex gap-1 p-1 rounded-(--r-ctl) bg-s3 mt-1 mb-3">
-              {([["video", "视频"], ["post", "帖子"]] as const).map(([k, label]) => (
+              {([["video", "Videos"], ["post", "Posts"]] as const).map(([k, label]) => (
                 <button key={k} onClick={() => changeTab(k)}
                   className={`flex-1 h-8 rounded-(--r-sm) text-[12px] font-semibold pressable ${tab === k ? "tonal text-on-sec" : "text-mut"}`}
                   style={tab === k ? { background: "var(--p-sec)", color: "var(--p-primary)" } : undefined}>{label}</button>
@@ -188,7 +188,7 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
             {(tab === "video" ? items.length : posts.length) ? (
               <>
                 {tab === "video" ? (
-                  <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: `搜索 · ${submitted}` })} />
+                  <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: `Search · ${submitted}` })} />
                 ) : (
                   <div className={`${wide ? "columns-3 xl:columns-4" : "columns-2"} gap-2`}>
                     {posts.map((post) => (
@@ -210,15 +210,15 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
                 <div className="flex justify-center py-4">
                   {loading ? <div className="w-6 h-6 spinner" />
                     : page < pages ? (
-                      <button onClick={() => run(submitted, page + 1)} className="px-5 h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable">加载更多</button>
-                    ) : <span className="text-[10.5px] text-dim">— 已经到底啦 —</span>}
+                      <button onClick={() => run(submitted, page + 1)} className="px-5 h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable">Load more</button>
+                    ) : <span className="text-[10.5px] text-dim">— You have reached the end —</span>}
                 </div>
               </>
             ) : loading ? (
               <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
             ) : (
-              <Empty icon={<ISearch size={26} />} title={err || "没有找到相关内容"} sub="换个关键词试试，比如「都市」「逆袭」"
-                action="看看热榜" onAction={() => push({ kind: "ranks" })} />
+              <Empty icon={<ISearch size={26} />} title={err || "No matching results"} sub="换个关键词试试，比如「都市」「逆袭」"
+                action="Explore trending titles" onAction={() => push({ kind: "ranks" })} />
             )}
           </>
         )}

@@ -111,7 +111,7 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
       window.dispatchEvent(new Event("hg:line-changed"));
     } catch (e) {
       tracePlayback("line.manual", { line: hostOf(url), ok: false, err: (e as Error).message });
-      toast((e as Error).message || "切换失败", "info");
+      toast((e as Error).message || "Could not switch", "info");
     } finally {
       setSwitching("");
     }
@@ -125,20 +125,20 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
       <div className="shrink-0 flex items-center gap-2 px-4 pt-3 pb-2">
         <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ISettings size={16} /></span>
         <div className="flex-1 min-w-0">
-          <div className="text-[14px] font-bold text-on leading-tight">线路</div>
-          <div className="text-[10.5px] text-mut mt-0.5 truncate">当前：{state ? hostOf(state.base) : "读取中…"}</div>
+          <div className="text-[14px] font-bold text-on leading-tight">Servers</div>
+          <div className="text-[10.5px] text-mut mt-0.5 truncate">当前：{state ? hostOf(state.base) : "Loading……"}</div>
         </div>
-        <button onClick={onClose} aria-label="关闭" className="w-8 h-8 rounded-full bg-s3/80 flex items-center justify-center text-mut pressable"><IClose size={16} /></button>
+        <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-full bg-s3/80 flex items-center justify-center text-mut pressable"><IClose size={16} /></button>
       </div>
 
       <div className="flex-1 scroll-y px-3 pb-4">
         <GroupHead
-          title="固定线路"
-          hint="需代理 / 非大陆网络"
+          title="Fixed servers"
+          hint="Proxy required / Network outside mainland China"
           actions={
             <button onClick={() => probe(fixed, "fixed")} disabled={busyAll || !fixed.length}
               className="text-[10.5px] text-primary pressable disabled:opacity-50">
-              {probing === "fixed" ? "检测中…" : "全部检测"}
+              {probing === "fixed" ? "Testing……" : "Test all"}
             </button>
           }
         />
@@ -147,17 +147,17 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
             <Row key={it.url} item={it} current={state?.base === it.url} probe={probes[it.url]}
               busy={probing === it.url} disabled={busyAll} onPick={pick} onProbe={(u) => probe([{ url: u }], u)} />
           ))}
-          {!fixed.length && <div className="px-3.5 py-3 text-[11px] text-mut">读取中…</div>}
+          {!fixed.length && <div className="px-3.5 py-3 text-[11px] text-mut">Loading……</div>}
         </div>
 
         <GroupHead
-          title="推荐镜像"
+          title="Recommended mirrors"
           hint="发布页每次换一批 · 当前线路置顶"
           actions={
             recommended?.length ? (
               <button onClick={() => probe(recommended, "recommended")} disabled={busyAll}
                 className="text-[10.5px] text-primary pressable disabled:opacity-50">
-                {probing === "recommended" ? "检测中…" : `全部检测（${recommended.length}）`}
+                {probing === "recommended" ? "Testing……" : `Test all（${recommended.length}）`}
               </button>
             ) : undefined
           }
@@ -174,18 +174,18 @@ export default function LinePicker({ open, onClose }: { open: boolean; onClose: 
         </div>
 
         <GroupHead
-          title="镜像线路"
+          title="Mirror servers"
           hint="一般可直连"
           actions={
             <>
               <button onClick={() => { void readMirrors(); }} disabled={loadingMirrors}
                 className="inline-flex items-center gap-1 text-[10.5px] text-primary pressable disabled:opacity-50">
-                <IRefresh size={12} />{loadingMirrors ? "获取中…" : "刷新"}
+                <IRefresh size={12} />{loadingMirrors ? "Fetching……" : "Refresh"}
               </button>
               {!!mirrors?.length && (
                 <button onClick={() => probe(mirrors, "mirrors")} disabled={busyAll}
                   className="text-[10.5px] text-primary pressable disabled:opacity-50">
-                  {probing === "mirrors" ? "检测中…" : `全部检测（${mirrors.length}）`}
+                  {probing === "mirrors" ? "Testing……" : `Test all（${mirrors.length}）`}
                 </button>
               )}
             </>

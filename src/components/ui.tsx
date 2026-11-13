@@ -112,7 +112,7 @@ export function ToastHost() {
             </span>
             <div className="min-w-0">
               <div className="text-[13px] font-semibold text-on leading-tight">
-                {t.line.region === "cn" ? "国内线路" : "国外线路"}
+                {t.line.region === "cn" ? "Domestic server" : "International server"}
               </div>
               <div className="text-[11px] text-dim leading-tight mt-0.5 truncate">{t.line.host}</div>
             </div>
@@ -209,7 +209,7 @@ export function DockPanel({ open, onClose, children, width = 372 }: {
     <div className="absolute inset-0 z-40 pointer-events-none">
       <div className={`absolute inset-0 bg-black/35 pointer-events-auto ${open ? "a-fade" : "opacity-0 transition-opacity duration-200"}`} onClick={onClose} />
       <div className={`desktop-dock absolute right-0 top-0 bottom-0 pointer-events-auto flex flex-col ${open ? "a-panel-in" : "a-panel-out"}`}
-        role="dialog" aria-label="侧边面板" style={{ width, maxWidth: "88%" }}>
+        role="dialog" aria-label="Side panel" style={{ width, maxWidth: "88%" }}>
         {children}
       </div>
     </div>

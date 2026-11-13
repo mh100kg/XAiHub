@@ -34,8 +34,8 @@ export function FollowingPage({ onBack, wide }: { onBack: () => void; wide: bool
       setPages(res?.pagination?.pages || next);
       setErr("");
     } catch (e) {
-      setErr((e as Error).message || "加载失败");
-      toast((e as Error).message || "加载失败", "info");
+      setErr((e as Error).message || "Could not load");
+      toast((e as Error).message || "Could not load", "info");
     } finally {
       busy.current = false;
       setLoading(false);
@@ -62,30 +62,30 @@ export function FollowingPage({ onBack, wide }: { onBack: () => void; wide: bool
       <div className="shrink-0 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <div className="px-3 pt-2 pb-3 flex items-center gap-2.5">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
-          <span className="text-[17px] font-bold text-on">关注</span>
+          <span className="text-[17px] font-bold text-on">Follow</span>
           <span className="text-[10.5px] text-mut">{items.length} 部</span>
-          <button onClick={() => setSearching(true)} aria-label="搜索短剧" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <button onClick={() => setSearching(true)} aria-label="Search short dramas" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
         </div>
       </div>
 
       <div className="flex-1 scroll-y px-4 pt-3 pb-8">
         {!user ? (
-          <Empty icon={<IUser size={26} />} title="登录后查看关注流" sub="关注喜欢的作者，第一时间看到他们的新作品"
-            action="去登录" onAction={() => setLoginOpen(true)} />
+          <Empty icon={<IUser size={26} />} title="Sign in to see your following feed" sub="关注喜欢的作者，第一时间看到他们的新作品"
+            action="Sign in" onAction={() => setLoginOpen(true)} />
         ) : loading && !items.length ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : err && !items.length ? (
-          <Empty icon={<IGrid size={26} />} title="加载失败" sub={err} action="重试" onAction={loadMore} />
+          <Empty icon={<IGrid size={26} />} title="Could not load" sub={err} action="Retry" onAction={loadMore} />
         ) : items.length ? (
-          <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: "关注" })} />
+          <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: "Follow" })} />
         ) : (
-          <Empty icon={<IGrid size={26} />} title="还没有关注内容" sub="去关注一些作者吧，这里会聚合他们的更新" />
+          <Empty icon={<IGrid size={26} />} title="No updates from followed creators" sub="去关注一些作者吧，这里会聚合他们的更新" />
         )}
         <div ref={sentinel} className="h-8" />
         {loading && items.length > 0 && <div className="flex justify-center py-3"><div className="w-6 h-6 spinner" /></div>}
-        {!loading && items.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— 已经到底啦 —</div>}
+        {!loading && items.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— You have reached the end —</div>}
       </div>
-      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: "关注" })} />}
+      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: "Follow" })} />}
     </div>
   );
 }
@@ -126,8 +126,8 @@ export function UserPage({ id, name, onBack, wide }: { id: number; name?: string
       setPages(res?.pagination?.pages || next);
       setErr("");
     } catch (e) {
-      setErr((e as Error).message || "加载失败");
-      toast((e as Error).message || "加载失败", "info");
+      setErr((e as Error).message || "Could not load");
+      toast((e as Error).message || "Could not load", "info");
     } finally {
       busy.current = false;
       setLoading(false);
@@ -147,7 +147,7 @@ export function UserPage({ id, name, onBack, wide }: { id: number; name?: string
   const following = follows.includes(id);
   const onFollow = () => {
     const on = toggleFollowLocal(id);
-    toast(on ? `已关注 ${profile?.nickname || name || ""}` : "已取消关注", on ? "ok" : "info");
+    toast(on ? `已关注 ${profile?.nickname || name || ""}` : "Unfollowed", on ? "ok" : "info");
     if (!user) { setLoginOpen(true); return; }
     api.follow(id, on).catch(() => {});
   };
@@ -157,8 +157,8 @@ export function UserPage({ id, name, onBack, wide }: { id: number; name?: string
       <div className="shrink-0 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <div className="px-3 pt-2 pb-3 flex items-center gap-2.5">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
-          <span className="text-[16px] font-bold text-on truncate">{profile?.nickname || name || "用户主页"}</span>
-          <button onClick={() => setSearching(true)} aria-label="搜索短剧" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <span className="text-[16px] font-bold text-on truncate">{profile?.nickname || name || "Creator profile"}</span>
+          <button onClick={() => setSearching(true)} aria-label="Search short dramas" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
         </div>
       </div>
 
@@ -167,17 +167,17 @@ export function UserPage({ id, name, onBack, wide }: { id: number; name?: string
         <div className="rounded-(--r-lg) bg-s1 p-4 elev-1 flex items-center gap-3.5 a-rise">
           <Avatar size={56} name={profile?.nickname || name || "U"} hue={220} ring />
           <div className="flex-1 min-w-0">
-            <div className="text-[16px] font-bold text-on truncate">{profile?.nickname || name || "未知用户"}</div>
+            <div className="text-[16px] font-bold text-on truncate">{profile?.nickname || name || "Unknown user"}</div>
             {profile?.username && <div className="text-[11px] text-mut mt-0.5">@{profile.username} · ID {id}</div>}
             <div className="flex gap-3 mt-2 text-[10.5px] text-mut">
-              <span>作品 <b className="text-on">{fmt(stats.video_count)}</b></span>
-              <span>粉丝 <b className="text-on">{fmt(stats.followers)}</b></span>
-              <span>获赞 <b className="text-on">{fmt(stats.like_count)}</b></span>
+              <span>Titles <b className="text-on">{fmt(stats.video_count)}</b></span>
+              <span>Followers <b className="text-on">{fmt(stats.followers)}</b></span>
+              <span>Likes received <b className="text-on">{fmt(stats.like_count)}</b></span>
             </div>
           </div>
           <button onClick={onFollow}
             className={`h-8 px-3.5 rounded-full text-[11.5px] font-semibold pressable shrink-0 ${following ? "bg-s3 text-mut" : "bg-primary text-on-primary"}`}>
-            {following ? "已关注" : "+ 关注"}
+            {following ? "Following" : "+ Follow"}
           </button>
         </div>
 
@@ -188,17 +188,17 @@ export function UserPage({ id, name, onBack, wide }: { id: number; name?: string
         {loading && !items.length ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : err && !items.length ? (
-          <Empty icon={<IGrid size={26} />} title="加载失败" sub={err} action="重试" onAction={loadMore} />
+          <Empty icon={<IGrid size={26} />} title="Could not load" sub={err} action="Retry" onAction={loadMore} />
         ) : items.length ? (
-          <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: profile?.nickname || name || "用户作品" })} />
+          <Masonry videos={items} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: items.map((x) => x.id), index: items.findIndex((x) => x.id === v.id), title: profile?.nickname || name || "Creator titles" })} />
         ) : (
-          <Empty icon={<IGrid size={26} />} title="暂无作品" />
+          <Empty icon={<IGrid size={26} />} title="No titles" />
         )}
         <div ref={sentinel} className="h-8" />
         {loading && items.length > 0 && <div className="flex justify-center py-3"><div className="w-6 h-6 spinner" /></div>}
-        {!loading && items.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— 已经到底啦 —</div>}
+        {!loading && items.length > 0 && page >= pages && <div className="text-center text-[10.5px] text-dim py-3">— You have reached the end —</div>}
       </div>
-      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: profile?.nickname || name || "用户作品" })} />}
+      {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: profile?.nickname || name || "Creator titles" })} />}
     </div>
   );
 }

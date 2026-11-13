@@ -325,7 +325,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     try { await api.logout(); } catch { /* ignore */ }
     setUser(null);
-    toast("已退出登录", "info");
+    toast("Signed out", "info");
   }, [toast]);
 
   const setTheater = useCallback((v: boolean | ((prev: boolean) => boolean)) => {

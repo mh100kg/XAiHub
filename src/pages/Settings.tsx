@@ -45,13 +45,13 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
    */
   const doUpdate = async () => {
     if (!update) return;
-    setUpdating("打开中…");
+    setUpdating("Opening……");
     try {
       await api.openUrl(update.url);
     } catch (e) {
       await copyText(update.url)
         .then(() => toast("下载地址已复制，可在浏览器粘贴打开", "ok"))
-        .catch(() => toast((e as Error).message || "打开失败", "info"));
+        .catch(() => toast((e as Error).message || "Could not open", "info"));
     } finally {
       setUpdating("");
     }
@@ -84,14 +84,14 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <div className="flex-1 scroll-y px-4 pt-1 pb-10">
         <div className={wide ? "max-w-[720px] mx-auto" : ""}>
-          <Section title="外观">
+          <Section title="Appearance">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary">{theme === "dark" ? <IMoon size={16} /> : <ISun size={16} />}</span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">深色外观</div>
+                <div className="text-[12.5px] text-on">Dark appearance</div>
                 <div className="text-[10.5px] text-mut">跟随设计稿的 Fluent 深色</div>
               </div>
-              <Toggle on={theme === "dark"} onChange={(on) => setTheme(on ? "dark" : "light")} label="深色外观" />
+              <Toggle on={theme === "dark"} onChange={(on) => setTheme(on ? "dark" : "light")} label="Dark appearance" />
             </div>
           </Section>
 
@@ -99,52 +99,52 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IVolMute size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">启动时静音</div>
+                <div className="text-[12.5px] text-on">Mute at startup</div>
                 <div className="text-[10.5px] text-mut">默认开启，每次启动均静音；关闭后记住上次静音状态。下次启动生效。</div>
               </div>
-              <Toggle on={muteOnStartup} onChange={setMuteOnStartup} label="启动时静音" />
+              <Toggle on={muteOnStartup} onChange={setMuteOnStartup} label="Mute at startup" />
             </div>
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IBoltF size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">优先高清</div>
+                <div className="text-[12.5px] text-on">Prefer HD</div>
                 <div className="text-[10.5px] text-mut">有高清就用 HEVC，播不了会自动切回标准</div>
               </div>
-              <Toggle on={preferHevc} onChange={setPreferHevc} label="优先高清" />
+              <Toggle on={preferHevc} onChange={setPreferHevc} label="Prefer HD" />
             </div>
           </Section>
 
-          <Section title="本地数据">
+          <Section title="Local data">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IHeart size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">本地喜欢</div>
+                <div className="text-[12.5px] text-on">Local likes</div>
                 <div className="text-[10.5px] text-mut">{favs.length} 部收藏 · {history.length} 条观看记录</div>
               </div>
             </div>
             <button onClick={() => setClearOpen(true)} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IBroom size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">清理缓存</div>
+                <div className="text-[12.5px] text-on">Clear cache</div>
                 <div className="text-[10.5px] text-mut">封面 / 播放缓存与本地记录</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
           </Section>
 
-          <Section title="网络">
+          <Section title="Network">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IBoltF size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">播放源</div>
+                <div className="text-[12.5px] text-on">Playback source</div>
                 <div className="text-[10.5px] text-mut truncate">固定 huangguoai.com</div>
               </div>
-              <span className="text-[10.5px] text-mint">已固定</span>
+              <span className="text-[10.5px] text-mint">Fixed</span>
             </div>
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILockF size={15} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">严格安全模式</div>
+                <div className="text-[12.5px] text-on">Strict security mode</div>
                 <div className="text-[10.5px] text-mut">
                   {cliRelaxed
                     ? "已由启动参数 --no-strict 切换为兼容模式；可手动重新开启"
@@ -195,22 +195,22 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
             }} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable disabled:opacity-60">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILink size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">{diagnosing ? "正在诊断…" : "网络诊断"}</div>
+                <div className="text-[12.5px] text-on">{diagnosing ? "Running diagnostics……" : "Network diagnostics"}</div>
                 <div className="text-[10.5px] text-mut">DNS / TCP / 系统代理 / 官网连通性，一键复制带结论的报告</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
           </Section>
 
-          <Section title="播放诊断">
+          <Section title="Playback diagnostics">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IInfo size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">播放诊断日志</div>
+                <div className="text-[12.5px] text-on">Playback diagnostic logs</div>
                 <div className="text-[10.5px] text-mut">版本、平台、当前线路和播放失败原因始终记录；开关只额外记录拖动与缓冲细节</div>
                 {playbackLog.error && <div role="alert" className="text-[10.5px] text-danger">{playbackLog.error}</div>}
               </div>
-              <Toggle label="播放诊断日志" on={playbackLog.enabled} disabled={!playbackLog.ready || playbackLog.pending}
+              <Toggle label="Playback diagnostic logs" on={playbackLog.enabled} disabled={!playbackLog.ready || playbackLog.pending}
                 onChange={(on) => { void setPlaybackLog(on).then(() => toast(on ? "已开启播放诊断，请复现问题" : "已关闭播放诊断，已有日志保留", "ok")).catch(() => toast("日志设置保存失败，请重试", "info")); }} />
             </div>
             <button disabled={!playbackLog.ready || playbackLog.pending || copyingLog} onClick={async () => {
@@ -221,26 +221,26 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
             }} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable disabled:opacity-60">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILink size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">{copyingLog ? "正在复制…" : "复制播放诊断日志"}</div>
+                <div className="text-[12.5px] text-on">{copyingLog ? "Copying……" : "CopyPlayback diagnostic logs"}</div>
                 <div className="text-[10.5px] text-mut break-all">含版本、平台、当前线路、播放失败原因，粘贴即完整{playbackLog.path ? ` · ${playbackLog.path}` : ""}</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
           </Section>
 
-          <Section title="其他">
+          <Section title="Other">
             <button onClick={checkUpdate} disabled={checking} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable disabled:opacity-60">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IRefresh size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">检查更新</div>
-                <div className="text-[10.5px] text-mut">{checking ? "检查中…" : `当前 v${APP_VERSION} · 对比 GitHub Release`}</div>
+                <div className="text-[12.5px] text-on">Check for updates</div>
+                <div className="text-[10.5px] text-mut">{checking ? "Checking……" : `当前 v${APP_VERSION} · 对比 GitHub Release`}</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
             <button onClick={() => setAbout(true)} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IInfo size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">关于 HGhubX</div>
+                <div className="text-[12.5px] text-on">About HGhubX</div>
                 <div className="text-[10.5px] text-mut">版本 {APP_VERSION} · 仅限非商业使用</div>
               </div>
               <IChevR size={15} className="text-mut" />
@@ -253,19 +253,19 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <Modal open={diagReport !== null} onClose={() => setDiagReport(null)} width={520}>
         <div className="p-5">
-          <h2 className="text-[14.5px] font-bold text-on">网络诊断报告</h2>
+          <h2 className="text-[14.5px] font-bold text-on">Network diagnostics report</h2>
           <p className="text-[12px] text-mut mt-2">诊断已完成，自动复制未成功。可以重试复制，或在下方选择报告文字。</p>
-          <textarea readOnly aria-label="网络诊断报告" value={diagReport ?? ""}
+          <textarea readOnly aria-label="Network diagnostics report" value={diagReport ?? ""}
             className="w-full h-64 mt-3 p-3 rounded-(--r-sm) bg-s3 text-[11px] text-on resize-none" />
           <div className="flex gap-2 mt-4">
-            <button onClick={() => setDiagReport(null)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">关闭</button>
+            <button onClick={() => setDiagReport(null)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">Close</button>
             <button disabled={copyingReport} onClick={async () => {
               if (diagReport === null) return;
               setCopyingReport(true);
               try { await copyText(diagReport); toast("网络诊断报告已复制", "ok"); setDiagReport(null); }
               catch { toast("复制失败，请选择报告文字手动复制", "info"); }
               finally { setCopyingReport(false); }
-            }} className="flex-1 h-9 rounded-(--r-ctl) brand-grad text-[12.5px] pressable disabled:opacity-60">{copyingReport ? "正在复制…" : "复制报告"}</button>
+            }} className="flex-1 h-9 rounded-(--r-ctl) brand-grad text-[12.5px] pressable disabled:opacity-60">{copyingReport ? "Copying……" : "复制报告"}</button>
           </div>
         </div>
       </Modal>
@@ -295,13 +295,13 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
               className="w-full flex items-center gap-2 py-2.5 text-left pressable">
               <ILink size={15} className="text-mut" />
               <span className="text-[12px] text-on/85">github.com/zxsos/HGhubX</span>
-              <span className="ml-auto text-[10.5px] text-primary">复制</span>
+              <span className="ml-auto text-[10.5px] text-primary">Copy</span>
             </button>
             <button onClick={() => { copyText("https://huangguoai.com").then(() => toast("站点地址已复制", "ok")).catch(() => {}); }}
               className="w-full flex items-center gap-2 py-2.5 text-left pressable">
               <ILink size={15} className="text-mut" />
               <span className="text-[12px] text-on/85">huangguoai.com</span>
-              <span className="ml-auto text-[10.5px] text-primary">复制</span>
+              <span className="ml-auto text-[10.5px] text-primary">Copy</span>
             </button>
             <div className="flex items-center gap-2 py-2.5">
               <IInfo size={15} className="text-mut" />
@@ -310,26 +310,26 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
             </div>
           </div>
 
-          <button onClick={() => setAbout(false)} className="mt-4 w-full h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">知道了</button>
+          <button onClick={() => setAbout(false)} className="mt-4 w-full h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">Got it</button>
         </div>
       </Modal>
 
       <Modal open={clearOpen} onClose={() => setClearOpen(false)} width={330}>
         <div className="p-5">
-          <div className="text-[14.5px] font-bold text-on">清理缓存</div>
+          <div className="text-[14.5px] font-bold text-on">Clear cache</div>
           <p className="text-[12px] text-mut leading-relaxed mt-2">
             只清除封面与播放列表缓存（解密图 / m3u8）。收藏、观看记录、搜索历史与登录状态都会保留。
           </p>
           <div className="flex gap-2 mt-5">
-            <button onClick={() => setClearOpen(false)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable">取消</button>
+            <button onClick={() => setClearOpen(false)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable">Cancel</button>
             <button disabled={clearing} onClick={async () => {
               setClearing(true);
               try { await api.clearCache(); } catch { /* 忽略 */ }
               setClearing(false);
               setClearOpen(false);
-              toast("缓存已清理", "ok");
+              toast("Cache cleared", "ok");
             }} className="flex-1 h-9 rounded-(--r-ctl) bg-primary text-[12.5px] font-semibold text-on-primary pressable disabled:opacity-60">
-              {clearing ? "清理中…" : "确定清理"}
+              {clearing ? "Clearing……" : "Clear cache"}
             </button>
           </div>
         </div>
@@ -347,10 +347,10 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
           )}
           <div className="flex gap-2 mt-4">
             <button onClick={() => setUpdate(null)} disabled={!!updating}
-              className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable disabled:opacity-60">稍后</button>
+              className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable disabled:opacity-60">Later</button>
             <button onClick={() => void doUpdate()} disabled={!!updating}
               className="flex-1 h-9 rounded-(--r-ctl) bg-primary text-[12.5px] font-semibold text-on-primary pressable disabled:opacity-60">
-              {updating || "前往下载"}
+              {updating || "Download"}
             </button>
           </div>
           <div className="text-[10px] text-dim mt-2.5 break-all">{update?.url}</div>

@@ -55,9 +55,9 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 flex items-center gap-2 px-2 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={19} /></button>
-        <span className="text-[14px] font-bold text-on">吃瓜</span>
-        <span className="text-[10.5px] text-mut ml-1">圈内爆料 · 每日更新</span>
-        <button onClick={() => setSearching(true)} aria-label="搜索吃瓜" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+        <span className="text-[14px] font-bold text-on">Entertainment</span>
+        <span className="text-[10.5px] text-mut ml-1">Entertainment news · Updated daily</span>
+        <button onClick={() => setSearching(true)} aria-label="Search entertainment news" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
       </div>
       <div className="flex-1 scroll-y px-3 pt-3 pb-8">
         {items.length ? (
@@ -85,7 +85,7 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
         <div ref={sentinel} className="h-10" />
         {loading && <div className="flex justify-center py-2"><div className="w-6 h-6 spinner" /></div>}
       </div>
-      {searching && <InplaceSearch kind="post" postLabel="吃瓜帖子" wide={wide} onClose={() => setSearching(false)} onOpenPost={(p) => push({ kind: "post", id: p.id })} />}
+      {searching && <InplaceSearch kind="post" postLabel="Entertainment posts" wide={wide} onClose={() => setSearching(false)} onOpenPost={(p) => push({ kind: "post", id: p.id })} />}
     </div>
   );
 }
@@ -110,7 +110,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
   const safeHtml = useMemo(() => sanitizeHtml(content), [content, strictSecurity]);
   const openSafeLink = (url: string) => {
     api.openUrl(url).catch(() => {
-      copyText(url).then(() => toast("链接已复制", "ok")).catch(() => toast("复制失败", "info"));
+      copyText(url).then(() => toast("Link copied", "ok")).catch(() => toast("Copy failed", "info"));
     });
   };
 
@@ -126,7 +126,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
         /* 老字段有值就直接用，省一次请求 */
         if (p.video_url) { setSegs([p.video_url]); setPlay(true); }
       })
-      .catch((e) => { if (alive) setErr((e as Error).message || "加载失败"); });
+      .catch((e) => { if (alive) setErr((e as Error).message || "Could not load"); });
     setResolving(true);
     api.postPlayback(id)
       .then((r) => {

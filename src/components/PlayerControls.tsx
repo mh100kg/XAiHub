@@ -37,7 +37,7 @@ const clock = (s: number) => fmtTime(Math.max(0, s || 0)).padStart(5, "0");
 
 export default function PlayerControls({
   paused, time, duration, buffered = 0, rate, muted, volume, theater = false, fullscreen = false,
-  visible = true, seekEnabled = true, seekKey, nextDisabled = false, nextTitle = "下一个", swipeEp = false, onToggle, onSeek, onSeekInteraction, onRate, onMute, onVolume, onPip, onLock, onTheater, onFullscreen, onNext, onToggleSwipe,
+  visible = true, seekEnabled = true, seekKey, nextDisabled = false, nextTitle = "Next", swipeEp = false, onToggle, onSeek, onSeekInteraction, onRate, onMute, onVolume, onPip, onLock, onTheater, onFullscreen, onNext, onToggleSwipe,
 }: Props) {
   const [speedOpen, setSpeedOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -73,7 +73,7 @@ export default function PlayerControls({
           </button>
         )}
         {onToggleSwipe && (
-          <button className={`player-control ${swipeEp ? "is-on" : ""}`} aria-label="上下划切集" aria-pressed={swipeEp}
+          <button className={`player-control ${swipeEp ? "is-on" : ""}`} aria-label="Swipe to change episodes" aria-pressed={swipeEp}
             data-tooltip={swipeEp ? "上下划切集：开" : "上下划切集：关"} onClick={onToggleSwipe}>
             <IVertSwap size={19} strokeWidth={1.7} />
           </button>
