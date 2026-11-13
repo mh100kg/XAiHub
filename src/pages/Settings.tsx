@@ -139,8 +139,8 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
                 <div className="text-[12.5px] text-on">Servers</div>
                 <div className="text-[10.5px] text-mut truncate">{lineBase ? hostOf(lineBase) : "Fixed servers 1（Default）"}</div>
               </div>
-              <span className="text-[10.5px] text-mint">已固定</span>
-            </div>
+              <span className="text-[10.5px] text-mint">Fixed</span>
+            </button>
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILockF size={15} /></span>
               <div className="flex-1 min-w-0">
