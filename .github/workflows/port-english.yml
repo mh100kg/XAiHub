@@ -1,0 +1,46 @@
+name: Port English UI to HGhubX 1.3
+
+on:
+  push:
+    branches: ["localize-hghubx-1.3"]
+
+permissions:
+  contents: write
+
+jobs:
+  localize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: localize-hghubx-1.3
+      - name: Apply compatible English UI hunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B localized origin/xaihub-1.3.0-ios
+          git show bece140bbe3261dc1a93e8adad27a83df07f4c63 --format= -- src | git apply --reject --whitespace=nowarn || true
+          find src -name '*.rej' -delete
+          git add src
+          if git diff --cached --quiet; then
+            echo "No compatible translation hunks found"
+          else
+            git commit -m "feat(ui): port compatible English labels to HGhubX 1.3.0"
+          fi
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Verify localized web build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+      - name: Push localized source
+        run: git push origin HEAD:refs/heads/xaihub-1.3.0-ios --force-with-lease=refs/heads/xaihub-1.3.0-ios:0e165dab47fa85e910c19b8c38ea555df3c2b95a
