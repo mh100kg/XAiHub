@@ -33,6 +33,8 @@ jobs:
               exit 1
             }
           done
+      - name: Push integrated source
+        run: git push origin HEAD:refs/heads/update-hghubx-1.3.0 --force-with-lease=refs/heads/update-hghubx-1.3.0:54e59fdb5ffbcbe3cbf6da0cc6293433d491b77d
       - uses: pnpm/action-setup@v4
         with:
           version: 10
@@ -44,5 +46,3 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm build
-      - name: Push integrated branch
-        run: git push origin HEAD:refs/heads/update-hghubx-1.3.0 --force-with-lease=refs/heads/update-hghubx-1.3.0:54e59fdb5ffbcbe3cbf6da0cc6293433d491b77d
